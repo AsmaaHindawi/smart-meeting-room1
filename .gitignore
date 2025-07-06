@@ -1,24 +1,55 @@
+# Logs
 *.log
+
+# macOS
 .DS_Store
+
+# Environment
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
+
+# IDE / Editor
 /.idea
-/.nova
-/.phpunit.cache
 /.vscode
+/.phpactor.json
 /.zed
+
+# PHPUnit & test caches
+.phpunit.result.cache
+/.phpunit.cache
+
+# Auth (e.g. Composer)
 /auth.json
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
 Homestead.json
 Homestead.yaml
+
+# Windows thumbnail cache
 Thumbs.db
+
+# ─── Larave­l backend ─────────────────────────────────────────────────────────
+
+# Composer vendor
+/backend/vendor
+
+# Backend node modules (if you ever npm/yarn in backend)
+/backend/node_modules
+
+# Laravel storage keys
+/backend/storage/*.key
+
+# Backend public assets
+/backend/public/build
+/backend/public/hot
+/backend/public/storage
+
+# Backend Pail cache (if used)
+/backend/storage/pail
+
+# ─── React front-end ─────────────────────────────────────────────────────────
+
+# Front-end node modules
+/smart-meeting-frontend/node_modules
+
+# Front-end build output
+/smart-meeting-frontend/dist
