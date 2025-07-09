@@ -1,3 +1,5 @@
+# smart-meeting-room1
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -21,7 +23,25 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+# smart-meeting-room1
+
+This mono-repo contains:
+
+- **backend/** — Laravel 12 API (PHP 8, Sanctum, Breeze)  
+- **smart-meeting-frontend/** — React + Vite front-end
+
+---
+
+## 🔧 Back-end Setup
+
+```bash
+cd backend
+composer install
+cp .env.example .env       # fill in your DB creds
+php artisan key:generate
+php artisan migrate        # or migrate:fresh
+php artisan serve
+# → runs at http://127.0.0.1:8000
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 

@@ -3,36 +3,48 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Handle an incoming authentication request.
+     * Handle an incoming authentication request via email/password and
+     * return a JSON response with a token.
      */
-    public function store(LoginRequest $request): Response
+    public function store(Request $request)
     {
-        $request->authenticate();
+        $data = $request->validate([
+            'email'    => ['required','email'],
+            'password' => ['required'],
+        ]);
 
-        $request->session()->regenerate();
+        if (! Auth::attempt($data)) {
+            return response()->json([
+                'message' => 'Invalid credentials.'
+            ], 401);
+        }
 
-        return response()->noContent();
+        $user = $request->user();
+
+        // Optionally revoke existing tokens:
+        // $user->tokens()->delete();
+
+        $token = $user->createToken($user->username)->plainTextToken;
+
+        return response()->json([
+            'user'  => $user,
+            'token' => $token,
+        ], 200);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Log out (revoke) the current token.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request)
     {
-        Auth::guard('web')->logout();
+        $request->user()->currentAccessToken()->delete();
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return response()->noContent();
+        return response()->json(null, 204);
     }
 }
