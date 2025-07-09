@@ -16,18 +16,18 @@ class RegisteredUserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'username'              => ['required', 'string', 'max:255', 'unique:users,username'],
-            'email'                 => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password'              => ['required', 'confirmed', Rules\Password::defaults()],
-            'roles'                 => ['required', 'in:admin,user'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'roles'    => ['required', 'in:admin,user'],
         ]);
 
         // Create the user using the validated fields...
         $user = User::create([
-            'username'  => $request->username,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'roles'     => $request->roles,
+            'username' => $request->username,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'roles'    => $request->roles,
         ]);
 
         // Issue a token

@@ -4,32 +4,28 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Handle an incoming authentication request via email/password and
-     * return a JSON response with a token.
+     * Handle an incoming login request.
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'email'    => ['required','email'],
+        $request->validate([
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (! Auth::attempt($data)) {
-            return response()->json([
-                'message' => 'Invalid credentials.'
-            ], 401);
+        $user = User::where('email', '=', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $user = $request->user();
-
-        // Optionally revoke existing tokens:
-        // $user->tokens()->delete();
-
+        // create and return a token
         $token = $user->createToken($user->username)->plainTextToken;
 
         return response()->json([
@@ -39,10 +35,11 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Log out (revoke) the current token.
+     * Revoke the current user's token.
      */
     public function destroy(Request $request)
     {
+        // deletes the token used in this request
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(null, 204);

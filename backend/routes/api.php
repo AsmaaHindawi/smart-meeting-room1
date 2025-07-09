@@ -25,17 +25,16 @@ use App\Http\Controllers\Api\NotificationController;
 */
 
 // User registration
-Route::post('register',       [RegisteredUserController::class,       'store']);
+Route::post('register', [RegisteredUserController::class,       'store']);
 
-// User login
-Route::post('login',          [AuthenticatedSessionController::class, 'store']);
+// User login (token‐based)
+Route::post('login',    [AuthenticatedSessionController::class, 'store']);
 
 // Forgot password (send reset link)
-Route::post('forgot-password',[PasswordResetLinkController::class,    'store']);
+Route::post('forgot-password', [PasswordResetLinkController::class, 'store']);
 
 // Reset password
-Route::post('reset-password', [NewPasswordController::class,          'store']);
-
+Route::post('reset-password',  [NewPasswordController::class,       'store']);
 
 /*
 |--------------------------------------------------------------------------
@@ -60,5 +59,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('bookings',      BookingController::class);
     Route::apiResource('attendees',     MeetingAttendeeController::class);
     Route::apiResource('notifications', NotificationController::class);
-
 });
