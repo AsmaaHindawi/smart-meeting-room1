@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Prevent tracking nested node_modules anywhere in the repo
+**/node_modules
+
+# at repo root .gitignore
+/node_modules
+/smart-meeting-frontend/node_modules
+/backend/vendor
