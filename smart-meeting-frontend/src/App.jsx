@@ -8,7 +8,7 @@ import Layout from "./AdminDashboard/Layout";
 //Admin
 import AdminDashboard from "./AdminDashboard/AdminDashboard";
 import ManageRooms from './AdminDashboard/ManageRooms';
-import BookMeeting from './AdminDashboard/BookMeeting'; 
+import BookMeeting from './AdminDashboard/BookMeeting';
 import MinutesPage from './AdminDashboard/MinutesPage';
 import AdminSettings from "./AdminDashboard/AdminSetting";
 import { MinutesEditor } from "./AdminDashboard/MinutesEditor";
@@ -34,7 +34,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<Login />} />
-       
+
 
         {/* Admin Routes */}
         <Route element={<Layout />}>
