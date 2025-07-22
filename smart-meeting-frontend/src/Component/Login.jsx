@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState }      from 'react';
+import { useNavigate }          from 'react-router-dom';
+import api                      from '../api';
 import './../App.css';
 
 function Login() {
-  const [email, setEmail] = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [error,    setError]    = useState(null);
+  const navigate               = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Email:", email, "Password:", password);
+    setError(null);
+
+    try {
+      // POST /login on your Laravel API
+      const res = await api.post('/login', { email, password });
+
+      // save token & set it on our client for future calls
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      // Redirect home (or dashboard)
+      navigate('/');
+    } catch (err) {
+      setError(
+        err.response?.data?.message
+        || "An unexpected error occurred"
+      );
+    }
   };
 
   return (
@@ -17,7 +37,6 @@ function Login() {
       className="min-h-screen flex items-center justify-center relative overflow-hidden Login"
       style={{ backgroundColor: '#1E293B' }}
     >
-    
       <button
         onClick={() => navigate('/')}
         className="absolute top-6 left-6 text-sm text-white font-medium hover:underline z-20"
@@ -29,15 +48,25 @@ function Login() {
         <div
           className="absolute w-[400px] h-[400px] bg-500 opacity-50 rounded-full top-[270px] left-[-180px]"
           style={{ backgroundColor: '#1E293B' }}
-        ></div>
+        />
         <div
           className="absolute w-[400px] h-[400px] bg-500 opacity-50 rounded-full top-[-140px] right-[-150px]"
           style={{ backgroundColor: '#1E293B' }}
-        ></div>
+        />
 
         <div className="p-10 w-[400px] z-10">
-          <h2 className="text-3xl font-semibold text-center text-gray-800 mb-1">Sign In</h2>
-          <p className="text-sm text-center text-gray-400 mb-6">Welcome !</p>
+          <h2 className="text-3xl font-semibold text-center text-gray-800 mb-1">
+            Sign In
+          </h2>
+          <p className="text-sm text-center text-gray-400 mb-6">
+            Welcome !
+          </p>
+
+          {error && (
+            <div className="mb-4 text-red-600 text-center">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
@@ -47,7 +76,7 @@ function Login() {
                 placeholder="example@gmail.com"
                 className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -59,7 +88,7 @@ function Login() {
                 placeholder="••••••••"
                 className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -71,7 +100,6 @@ function Login() {
               Sign In
             </button>
           </form>
-
         </div>
       </div>
     </div>

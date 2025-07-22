@@ -15,11 +15,19 @@ return [
     |
     */
 
-    'paths' => ['*'],
+    // Only apply CORS to your API routes and Sanctum CSRF endpoint:
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+    ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    // Make sure to set FRONTEND_URL in your .env to http://localhost:5173 (or your deployed front-end URL)
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:3000'),
+        'http://localhost:5173',
+    ],
 
     'allowed_origins_patterns' => [],
 
