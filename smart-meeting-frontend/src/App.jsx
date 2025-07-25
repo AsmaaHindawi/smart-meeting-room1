@@ -1,31 +1,36 @@
-import React, { Component } from "react";
+// src/App.jsx
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+// Public
 import Login from "./Component/Login";
 import Home from "./Component/Home";
-import Layout from "./AdminDashboard/Layout";
 
-//Admin
+// Admin
+import Layout from "./AdminDashboard/Layout";
 import AdminDashboard from "./AdminDashboard/AdminDashboard";
-import ManageRooms from './AdminDashboard/ManageRooms';
-import BookMeeting from './AdminDashboard/BookMeeting';
-import MinutesPage from './AdminDashboard/MinutesPage';
+import ManageRooms from "./AdminDashboard/ManageRooms";
+import BookMeeting from "./AdminDashboard/BookMeeting";
+import MinutesPage from "./AdminDashboard/MinutesPage";
 import AdminSettings from "./AdminDashboard/AdminSetting";
 import { MinutesEditor } from "./AdminDashboard/MinutesEditor";
 import AddUsers from "./AdminDashboard/AddUsers";
+
 // Employee
 import EmployeeLayout from "./EmployeeDashboard/EmployeeLayout";
 import EmployeeDashboard from "./EmployeeDashboard/EmployeeDashboard";
 import BookMeetings from "./EmployeeDashboard/BookMeetings";
 import MinutesReview from "./EmployeeDashboard/MinutesReview";
 import EmployeeSettings from "./EmployeeDashboard/EmployeeSetting";
-//User
+
+// User
 import UserLayout from "./User/UserLayout";
 import Dashboard from "./User/dashboard";
-import {ActiveMeeting}  from "./User/ActiveMeeting";
+import { ActiveMeeting } from "./User/ActiveMeeting";
 import Minutes from "./User/Minutes";
 
-
+// **New**: Generic booking page
+import BookRoom from "./Component/BookRoom";
 
 function App() {
   return (
@@ -35,7 +40,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<Login />} />
 
-
         {/* Admin Routes */}
         <Route element={<Layout />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -44,7 +48,6 @@ function App() {
           <Route path="/admin/settingsPage" element={<AdminSettings />} />
           <Route path="/admin/minutes" element={<MinutesEditor />} />
           <Route path="/admin/addUsers" element={<AddUsers />} />
-
         </Route>
 
         {/* Employee Routes */}
@@ -52,8 +55,7 @@ function App() {
           <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
           <Route path="/employee/book" element={<BookMeetings />} />
           <Route path="/employee/minutes" element={<MinutesReview />} />
-         <Route path="/employee/settings" element={<EmployeeSettings />} />
-
+          <Route path="/employee/settings" element={<EmployeeSettings />} />
         </Route>
 
         {/* User Routes */}
@@ -62,6 +64,9 @@ function App() {
           <Route path="/user/join" element={<ActiveMeeting />} />
           <Route path="/user/minutes" element={<Minutes />} />
         </Route>
+
+        {/* ↪ New Booking Route (after login) */}
+        <Route path="/book" element={<BookRoom />} />
       </Routes>
     </Router>
   );
