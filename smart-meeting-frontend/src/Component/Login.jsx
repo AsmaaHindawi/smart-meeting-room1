@@ -1,33 +1,25 @@
-import React, { useState }      from 'react';
-import { useNavigate }          from 'react-router-dom';
-import api                      from '../api';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
 import './../App.css';
 
 function Login() {
-  const [email,    setEmail]    = useState("");
+  const { signIn } = useContext(AuthContext);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error,    setError]    = useState(null);
-  const navigate               = useNavigate();
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      // POST /login on your Laravel API
-      const res = await api.post('/login', { email, password });
-
-      // save token & set it on our client for future calls
-      const token = res.data.token;
-      localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      // Redirect home (or dashboard)
+      await signIn({ email, password });
       navigate('/');
     } catch (err) {
       setError(
-        err.response?.data?.message
-        || "An unexpected error occurred"
+        err.response?.data?.message || 'An unexpected error occurred'
       );
     }
   };

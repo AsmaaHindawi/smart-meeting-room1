@@ -53,3 +53,7 @@ Thumbs.db
 
 # Front-end build output
 /smart-meeting-frontend/dist
+
+# accidental dump
+/git
+
