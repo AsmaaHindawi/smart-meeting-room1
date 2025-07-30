@@ -9,7 +9,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl mb-4">Welcome, {user.name}!</h1>
+      <h1 className="text-2xl mb-4">Welcome, {user.username}!</h1>
 
       {/* Quick Actions */}
       <div className="mb-8 space-x-4">
