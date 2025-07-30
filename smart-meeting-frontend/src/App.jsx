@@ -30,7 +30,7 @@ import { ActiveMeeting } from "./User/ActiveMeeting";
 import Minutes from "./User/Minutes";
 
 // **New**: Generic booking page
-import BookRoom from "./Component/BookRoom";
+import BookRoom from "./pages/BookRoom";
 
 function App() {
   return (
