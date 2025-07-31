@@ -1,6 +1,6 @@
 // src/pages/LoginPage.jsx
 import { useState, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '../contexts/AuthContext.jsx';
 
 export default function LoginPage() {
   const { signIn } = useContext(AuthContext);
