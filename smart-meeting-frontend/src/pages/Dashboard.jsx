@@ -1,7 +1,7 @@
 // C:\Users\Youssef Hindawi\smart-meeting-room1\smart-meeting-frontend\src\pages\Dashboard.jsx
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '../contexts/AuthContext.jsx';
 import RoomList from '../components/RoomList';
 
 export default function Dashboard() {
