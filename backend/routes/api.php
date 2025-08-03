@@ -60,3 +60,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('attendees',     MeetingAttendeeController::class);
     Route::apiResource('notifications', NotificationController::class);
 });
+
+
+use App\Http\Controllers\ContactController;
+
+// Route::post('/contact', [ContactController::class, 'store']);
+Route::apiResource('contact', ContactController::class);
