@@ -1,7 +1,5 @@
 <?php
 
-// File: app/Http/Controllers/Api/RoomController.php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -18,10 +16,11 @@ class RoomController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'location'  => 'required|string|max:255',
-            'capacity'  => 'required|integer|min:1',
-            'features'  => 'nullable|string',
-            'is_active' => 'boolean',
+            'location'   => 'required|string|max:255',
+            'capacity'   => 'required|integer|min:1',
+            'features'   => 'required|array',          // ← must be an array
+            'features.*' => 'string|max:100',          // ← each element string
+            'is_active'  => 'required|boolean',
         ]);
 
         $room = Room::create($data);
@@ -39,10 +38,11 @@ class RoomController extends Controller
         $room = Room::findOrFail($id);
 
         $data = $request->validate([
-            'location'  => 'sometimes|required|string|max:255',
-            'capacity'  => 'sometimes|required|integer|min:1',
-            'features'  => 'nullable|string',
-            'is_active' => 'boolean',
+            'location'   => 'sometimes|required|string|max:255',
+            'capacity'   => 'sometimes|required|integer|min:1',
+            'features'   => 'sometimes|array',
+            'features.*' => 'string|max:100',
+            'is_active'  => 'boolean',
         ]);
 
         $room->update($data);
@@ -55,5 +55,3 @@ class RoomController extends Controller
         return response()->json(null, 204);
     }
 }
-
-

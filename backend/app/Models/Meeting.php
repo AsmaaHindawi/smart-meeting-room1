@@ -7,14 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Meeting extends Model
 {
     protected $fillable = [
-        'mom_id',
         'room_id',
+        'mom_id',
         'title',
         'agenda',
     ];
 
     public function minutes()
     {
+        // still point at your minutes-of-meetings table via mom_id
         return $this->belongsTo(MinutesOfMeeting::class, 'mom_id');
     }
 

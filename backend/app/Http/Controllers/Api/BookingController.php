@@ -1,7 +1,5 @@
 <?php
 
-// File: app/Http/Controllers/Api/BookingController.php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -12,7 +10,10 @@ class BookingController extends Controller
 {
     public function index()
     {
-        return response()->json(Booking::with(['user','room','meeting'])->get(), 200);
+        return response()->json(
+            Booking::with(['user','room','meeting'])->get(),
+            200
+        );
     }
 
     public function store(Request $request)
@@ -21,7 +22,7 @@ class BookingController extends Controller
             'user_id'    => 'required|exists:users,id',
             'room_id'    => 'required|exists:rooms,id',
             'meeting_id' => 'required|exists:meetings,id',
-            'duration'   => 'required|integer|min:1',
+            'duration'   => 'required|integer|min:1',            // ← now required
             'status'     => 'required|string|in:pending,confirmed,cancelled',
         ]);
 
@@ -57,4 +58,3 @@ class BookingController extends Controller
         return response()->json(null, 204);
     }
 }
-

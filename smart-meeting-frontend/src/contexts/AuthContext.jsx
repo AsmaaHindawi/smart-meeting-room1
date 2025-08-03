@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // src/contexts/AuthContext.js
 import { createContext, useState, useEffect } from 'react';
 import { login, logout, fetchCurrentUser } from '../services/authService';

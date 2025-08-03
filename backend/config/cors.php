@@ -11,19 +11,19 @@ return [
     | or "CORS". This determines what cross-origin operations may execute
     | in web browsers. You are free to adjust these settings as needed.
     |
-    | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-    |
     */
 
     // Only apply CORS to your API routes and Sanctum CSRF endpoint:
     'paths' => [
         'api/*',
         'sanctum/csrf-cookie',
+        'login',
+        'logout',
     ],
 
     'allowed_methods' => ['*'],
 
-    // Make sure to set FRONTEND_URL in your .env to http://localhost:5173 (or your deployed front-end URL)
+    // Make sure to set FRONTEND_URL in your .env to http://localhost:5173
     'allowed_origins' => [
         env('FRONTEND_URL', 'http://localhost:3000'),
         'http://localhost:5173',
@@ -33,7 +33,7 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => ['*'],
 
     'max_age' => 0,
 

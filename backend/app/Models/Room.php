@@ -13,6 +13,12 @@ class Room extends Model
         'is_active',
     ];
 
+    // ← Cast our JSON and boolean columns
+    protected $casts = [
+        'features'  => 'array',
+        'is_active' => 'boolean',
+    ];
+
     public function meetings()
     {
         return $this->hasMany(Meeting::class);
