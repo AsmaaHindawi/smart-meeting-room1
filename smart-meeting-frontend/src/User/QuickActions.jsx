@@ -1,4 +1,3 @@
-import React from "react";
 import { FaCalendarAlt, FaVideo, FaFileAlt } from "react-icons/fa";
 
 const QuickActions = () => {
