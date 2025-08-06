@@ -5,10 +5,10 @@ import './../App.css';
 
 function Login() {
   const { signIn } = useContext(AuthContext);
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError]       = useState(null);
+  const navigate                = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();

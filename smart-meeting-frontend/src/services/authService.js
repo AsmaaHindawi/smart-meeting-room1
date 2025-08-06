@@ -1,14 +1,17 @@
-import api     from '../api';     // your /api instance
-import authApi from '../authApi'; // your root instance
+// src/services/authService.js
+import api     from '../api';      // your existing /api Axios instance
+import authApi from '../authApi';  // your existing root-level Axios instance
 
 // 1. Login via Sanctum cookie
 export function login({ email, password }) {
   return authApi
-    .get('/sanctum/csrf-cookie')              // fetch CSRF cookie
-    .then(() => authApi.post('/login', {      // then login on web route
-      email,
-      password
-    }))
+    .get('/sanctum/csrf-cookie')              // ← NEW: fetch CSRF cookie first
+    .then(() =>
+      authApi.post('/login', {                // then login on web route
+        email,
+        password
+      })
+    )
     // store the token (returned in JSON) for /api calls
     .then(res => {
       const { token } = res.data;

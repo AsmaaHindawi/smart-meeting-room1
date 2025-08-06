@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -29,43 +28,43 @@ import Dashboard from "./User/dashboard";
 import { ActiveMeeting } from "./User/ActiveMeeting";
 import Minutes from "./User/Minutes";
 
-// **New**: Generic booking page
+// New Booking Page
 import BookRoom from "./pages/BookRoom";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<Login />} />
 
-        {/* Admin Routes */}
+        {/* Admin */}
         <Route element={<Layout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/manageRooms" element={<ManageRooms />} />
-          <Route path="/admin/bookMeeting" element={<BookMeeting />} />
+          <Route path="/admin/dashboard"    element={<AdminDashboard />} />
+          <Route path="/admin/manageRooms"  element={<ManageRooms />} />
+          <Route path="/admin/bookMeeting"  element={<BookMeeting />} />
           <Route path="/admin/settingsPage" element={<AdminSettings />} />
-          <Route path="/admin/minutes" element={<MinutesEditor />} />
-          <Route path="/admin/addUsers" element={<AddUsers />} />
+          <Route path="/admin/minutes"      element={<MinutesEditor />} />
+          <Route path="/admin/addUsers"     element={<AddUsers />} />
         </Route>
 
-        {/* Employee Routes */}
+        {/* Employee */}
         <Route element={<EmployeeLayout />}>
           <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-          <Route path="/employee/book" element={<BookMeetings />} />
-          <Route path="/employee/minutes" element={<MinutesReview />} />
-          <Route path="/employee/settings" element={<EmployeeSettings />} />
+          <Route path="/employee/book"      element={<BookMeetings />} />
+          <Route path="/employee/minutes"   element={<MinutesReview />} />
+          <Route path="/employee/settings"  element={<EmployeeSettings />} />
         </Route>
 
-        {/* User Routes */}
+        {/* User */}
         <Route element={<UserLayout />}>
           <Route path="/user/dashboard" element={<Dashboard />} />
-          <Route path="/user/join" element={<ActiveMeeting />} />
-          <Route path="/user/minutes" element={<Minutes />} />
+          <Route path="/user/join"      element={<ActiveMeeting />} />
+          <Route path="/user/minutes"   element={<Minutes />} />
         </Route>
 
-        {/* ↪ New Booking Route (after login) */}
+        {/* New Booking */}
         <Route path="/book" element={<BookRoom />} />
       </Routes>
     </Router>
