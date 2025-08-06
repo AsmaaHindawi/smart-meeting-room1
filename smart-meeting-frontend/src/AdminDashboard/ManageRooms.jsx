@@ -1,39 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
-import Sidebar from "./Sidebar";
-const initialRooms = [
-  { id: 1, name: "Room A", capacity: 10, equipment: ["Mic", "Projector"], status: "Available" },
-  { id: 2, name: "Room B", capacity: 20, equipment: ["Projector"], status: "Booked" },
-  { id: 3, name: "Room C", capacity: 15, equipment: ["Mic"], status: "Maintenance" },
-];
+import axios from "axios";
 
 export default function ManageRooms() {
-  const [rooms, setRooms] = useState(initialRooms);
+  const [rooms, setRooms] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editRoom, setEditRoom] = useState(null);
 
   const [form, setForm] = useState({
-    name: "",
+    location: "",
     capacity: "",
     equipmentMic: false,
     equipmentProjector: false,
-    status: "Available",
+    is_active: true,
   });
+
+  const apiBase = "http://localhost:8000/api/rooms";
+
+  useEffect(() => {
+    axios
+      .get(apiBase)
+      .then((res) => setRooms(res.data))
+      .catch((err) => console.error("Failed to fetch rooms:", err));
+  }, []);
 
   const openAddModal = () => {
     setEditRoom(null);
-    setForm({ name: "", capacity: "", equipmentMic: false, equipmentProjector: false, status: "Available" });
+    setForm({
+      location: "",
+      capacity: "",
+      equipmentMic: false,
+      equipmentProjector: false,
+      is_active: true,
+    });
     setModalOpen(true);
   };
 
   const openEditModal = (room) => {
+    const features = room.features?.split(",").map((f) => f.trim()) || [];
     setEditRoom(room);
     setForm({
-      name: room.name,
+      location: room.location,
       capacity: room.capacity,
-      equipmentMic: room.equipment.includes("Mic"),
-      equipmentProjector: room.equipment.includes("Projector"),
-      status: room.status,
+      equipmentMic: features.includes("Mic"),
+      equipmentProjector: features.includes("Projector"),
+      is_active: room.is_active,
     });
     setModalOpen(true);
   };
@@ -46,36 +57,44 @@ export default function ManageRooms() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const equipment = [];
-    if (form.equipmentMic) equipment.push("Mic");
-    if (form.equipmentProjector) equipment.push("Projector");
+    const features = [];
+    if (form.equipmentMic) features.push("Mic");
+    if (form.equipmentProjector) features.push("Projector");
 
-    if (editRoom) {
-      // update existing
-      setRooms((r) =>
-        r.map((room) =>
-          room.id === editRoom.id ? { ...room, name: form.name, capacity: form.capacity, equipment, status: form.status } : room
-        )
-      );
-    } else {
-      // add new
-      const newRoom = {
-        id: rooms.length ? Math.max(...rooms.map((r) => r.id)) + 1 : 1,
-        name: form.name,
-        capacity: form.capacity,
-        equipment,
-        status: form.status,
-      };
-      setRooms((r) => [...r, newRoom]);
+    const payload = {
+      location: form.location,
+      capacity: parseInt(form.capacity),
+      features: features.join(", "),
+      is_active: form.is_active,
+    };
+
+    try {
+      if (editRoom) {
+        // ✅ Corrected
+        const res = await axios.put(`${apiBase}/${editRoom.id}`, payload);
+        setRooms((prev) =>
+          prev.map((r) => (r.id === editRoom.id ? res.data : r))
+        );
+      } else {
+        const res = await axios.post(apiBase, payload);
+        setRooms((prev) => [...prev, res.data]);
+      }
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Error saving room:", err.response?.data || err.message);
     }
-    setModalOpen(false);
   };
 
-  const handleDelete = (roomId) => {
-    if (window.confirm("Are you sure you want to delete this room?")) {
-      setRooms((r) => r.filter((room) => room.id !== roomId));
+  const handleDelete = async (roomId) => {
+    if (!window.confirm("Are you sure you want to delete this room?")) return;
+    try {
+      // ✅ Corrected
+      await axios.delete(`${apiBase}/${roomId}`);
+      setRooms((prev) => prev.filter((r) => r.id !== roomId));
+    } catch (err) {
+      console.error("Failed to delete room:", err);
     }
   };
 
@@ -94,9 +113,8 @@ export default function ManageRooms() {
 
       <table className="min-w-full bg-white rounded shadow-md">
         <thead>
-
           <tr className="bg-indigo-100 text-indigo-700">
-            <th className="text-left px-4 py-2">Room Name</th>
+            <th className="text-left px-4 py-2">Location</th>
             <th className="text-left px-4 py-2">Capacity</th>
             <th className="text-left px-4 py-2">Equipment</th>
             <th className="text-left px-4 py-2">Status</th>
@@ -106,20 +124,18 @@ export default function ManageRooms() {
         <tbody>
           {rooms.map((room) => (
             <tr key={room.id} className="border-b hover:bg-indigo-50">
-              <td className="px-4 py-3">{room.name}</td>
+              <td className="px-4 py-3">{room.location}</td>
               <td className="px-4 py-3">{room.capacity}</td>
-              <td className="px-4 py-3">{room.equipment.join(", ") || "-"}</td>
+              <td className="px-4 py-3">{room.features || "-"}</td>
               <td className="px-4 py-3">
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                    room.status === "Available"
+                    room.is_active
                       ? "bg-green-200 text-green-800"
-                      : room.status === "Booked"
-                      ? "bg-yellow-200 text-yellow-800"
                       : "bg-red-200 text-red-800"
                   }`}
                 >
-                  {room.status}
+                  {room.is_active ? "Active" : "Inactive"}
                 </span>
               </td>
               <td className="px-4 py-3 flex gap-3">
@@ -162,9 +178,9 @@ export default function ManageRooms() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
-                name="name"
+                name="location"
                 placeholder="Room Name"
-                value={form.name}
+                value={form.location}
                 onChange={handleChange}
                 required
                 className="w-full p-2 border rounded"
@@ -202,16 +218,15 @@ export default function ManageRooms() {
                 </label>
               </div>
 
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-              >
-                <option value="Available">Available</option>
-                <option value="Booked">Booked</option>
-                <option value="Maintenance">Maintenance</option>
-              </select>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="is_active"
+                  checked={form.is_active}
+                  onChange={handleChange}
+                />
+                Active
+              </label>
 
               <div className="flex justify-end gap-4">
                 <button
