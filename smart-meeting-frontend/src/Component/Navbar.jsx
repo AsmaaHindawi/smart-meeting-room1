@@ -1,9 +1,40 @@
-// C:\Users\Youssef Hindawi\smart-meeting-room1\smart-meeting-frontend\src\Component\Navbar.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 function Navbar() {
   const [showContactForm, setShowContactForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [status, setStatus] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("");
+
+    try {
+      await axios.post("http://localhost:8000/api/contact", formData);
+      setStatus("Message sent successfully!");
+      setFormData({ name: "", email: "", message: "" });
+      setTimeout(() => {
+        setShowContactForm(false);
+        setStatus("");
+      }, 2000);
+    } catch (error) {
+      console.error("Submission error:", error);
+      setStatus(" Failed to send message. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -24,18 +55,12 @@ function Navbar() {
           style={{ color: "#2c2e5f", fontSize: "19px", fontWeight: "bold" }}
         >
           <li>
-            <a
-              href="#about"
-              className="hover:text-[#7d64fb] transition duration-200"
-            >
+            <a href="#about" className="hover:text-[#7d64fb] transition duration-200">
               About Us
             </a>
           </li>
           <li>
-            <a
-              href="#features"
-              className="hover:text-[#7d64fb] transition duration-200"
-            >
+            <a href="#features" className="hover:text-[#7d64fb] transition duration-200">
               Features
             </a>
           </li>
@@ -50,14 +75,6 @@ function Navbar() {
         </ul>
 
         <div className="z-10 flex items-center space-x-14 mr-20">
-          {/* New Link to Booking Page */}
-          <Link
-            to="/book"
-            className="bg-white text-[#2c2e5f] border border-[#2c2e5f] px-5 py-2 rounded-full hover:bg-[#7d64fb] hover:text-white transition font-medium"
-          >
-            Schedule Meeting
-          </Link>
-
           <Link
             to="/signin"
             className="bg-white text-[#2c2e5f] border border-[#2c2e5f] px-5 py-2 rounded-full hover:bg-[#7d64fb] hover:text-white transition font-medium"
@@ -67,6 +84,7 @@ function Navbar() {
         </div>
       </nav>
 
+      {/* Contact Form Modal */}
       {showContactForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/30 backdrop-blur-sm">
           <div className="relative bg-white rounded-3xl w-full max-w-lg shadow-2xl p-8 mx-4">
@@ -88,12 +106,15 @@ function Navbar() {
               We'd love to hear from you!
             </p>
 
-            {/* Contact Form */}
-            <form className="space-y-4">
+            {/* Form */}
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="text-sm text-gray-600">Your Name</label>
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   placeholder="John Doe"
                   className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   required
@@ -104,6 +125,9 @@ function Navbar() {
                 <label className="text-sm text-gray-600">Your Email</label>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="you@example.com"
                   className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   required
@@ -113,7 +137,10 @@ function Navbar() {
               <div>
                 <label className="text-sm text-gray-600">Message</label>
                 <textarea
+                  name="message"
                   rows="4"
+                  value={formData.message}
+                  onChange={handleChange}
                   placeholder="Write your message..."
                   className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   required
@@ -126,6 +153,12 @@ function Navbar() {
               >
                 Send Message
               </button>
+
+              {status && (
+                <p className="text-center text-sm mt-2 text-gray-700">
+                  {status}
+                </p>
+              )}
             </form>
           </div>
         </div>
