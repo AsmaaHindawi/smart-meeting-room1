@@ -15,7 +15,7 @@ public function up(): void
         $table->id();
         $table->string('location');
         $table->integer('capacity');
-        $table->text('features')->nullable();
+      $table->json('features')->nullable();
         $table->boolean('is_active')->default(true);
         $table->timestamps();
     });
