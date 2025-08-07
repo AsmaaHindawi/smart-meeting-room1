@@ -1,4 +1,15 @@
-const MeetingList = ({ title, meetings }) => {
+import { useEffect, useState } from "react";
+
+const MeetingList = ({ title }) => {
+  const [meetings, setMeetings] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/meetings') // Update with your actual backend endpoint
+      .then((response) => response.json())
+      .then((data) => setMeetings(data))
+      .catch((error) => console.error("Error fetching meetings:", error));
+  }, []);
+
   return (
     <div className="bg-white p-4 rounded-xl shadow-md">
       <h3 className="text-lg font-semibold mb-3 text-indigo-700">{title}</h3>

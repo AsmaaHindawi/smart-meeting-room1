@@ -17,20 +17,25 @@ class MeetingController extends Controller
         );
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'room_id' => 'required|exists:rooms,id',
-            // ← now nullable so you can create meetings before minutes exist
-            'mom_id'  => 'nullable|exists:minutes_of_meetings,id',
-            'title'   => 'required|string|max:255',
-            'agenda'  => 'nullable|string',
-        ]);
+  public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'date' => 'required|date',
+        'time' => 'required',
+        'duration' => 'required|integer',
+        'attendees' => 'required|array',
+        'room_id' => 'required|integer|exists:rooms,id',
+        'recurring' => 'boolean',
+        'video' => 'boolean',
+    ]);
 
-        $meeting = Meeting::create($data);
+    // Store logic here
+    $meeting = Meeting::create($validated);
 
-        return response()->json($meeting, 201);
-    }
+    return response()->json($meeting, 201);
+}
+
 
     public function show($id)
     {

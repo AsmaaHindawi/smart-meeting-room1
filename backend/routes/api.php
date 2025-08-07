@@ -52,16 +52,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
 
     // CRUD for all your entities
-    Route::apiResource('users',         UserController::class);
-    Route::apiResource('rooms',         RoomController::class);
-    Route::apiResource('meetings',      MeetingController::class);
+   Route::apiResource('users',         UserController::class);
+    Route::apiResource('attendees',     MeetingAttendeeController::class);
+
+  Route::apiResource('rooms',         RoomController::class);
+  Route::apiResource('meetings',      MeetingController::class);
+    
     Route::apiResource('minutes',       MinutesOfMeetingController::class);
     Route::apiResource('bookings',      BookingController::class);
-    Route::apiResource('attendees',     MeetingAttendeeController::class);
     Route::apiResource('notifications', NotificationController::class);
 });
-
-
+   
 use App\Http\Controllers\ContactController;
 
 // Route::post('/contact', [ContactController::class, 'store']);

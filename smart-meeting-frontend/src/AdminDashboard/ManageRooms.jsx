@@ -7,6 +7,9 @@ export default function ManageRooms() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editRoom, setEditRoom] = useState(null);
 
+  // State to handle delete confirmation modal
+  const [deleteConfirmRoomId, setDeleteConfirmRoomId] = useState(null);
+
   const [form, setForm] = useState({
     location: "",
     capacity: "",
@@ -37,7 +40,10 @@ export default function ManageRooms() {
   };
 
   const openEditModal = (room) => {
-    const features = room.features?.split(",").map((f) => f.trim()) || [];
+    const features = Array.isArray(room.features)
+      ? room.features
+      : room.features?.split(",").map((f) => f.trim()) || [];
+
     setEditRoom(room);
     setForm({
       location: room.location,
@@ -59,6 +65,7 @@ export default function ManageRooms() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const features = [];
     if (form.equipmentMic) features.push("Mic");
     if (form.equipmentProjector) features.push("Projector");
@@ -66,13 +73,12 @@ export default function ManageRooms() {
     const payload = {
       location: form.location,
       capacity: parseInt(form.capacity),
-      features: features.join(", "),
+      features: features, // send as array
       is_active: form.is_active,
     };
 
     try {
       if (editRoom) {
-        // ✅ Corrected
         const res = await axios.put(`${apiBase}/${editRoom.id}`, payload);
         setRooms((prev) =>
           prev.map((r) => (r.id === editRoom.id ? res.data : r))
@@ -87,14 +93,25 @@ export default function ManageRooms() {
     }
   };
 
-  const handleDelete = async (roomId) => {
-    if (!window.confirm("Are you sure you want to delete this room?")) return;
+  // Open delete confirmation modal
+  const confirmDelete = (roomId) => {
+    setDeleteConfirmRoomId(roomId);
+  };
+
+  // Cancel delete modal
+  const cancelDelete = () => {
+    setDeleteConfirmRoomId(null);
+  };
+
+  // Proceed with deletion
+  const proceedDelete = async () => {
     try {
-      // ✅ Corrected
-      await axios.delete(`${apiBase}/${roomId}`);
-      setRooms((prev) => prev.filter((r) => r.id !== roomId));
+      await axios.delete(`${apiBase}/${deleteConfirmRoomId}`);
+      setRooms((prev) => prev.filter((r) => r.id !== deleteConfirmRoomId));
     } catch (err) {
       console.error("Failed to delete room:", err);
+    } finally {
+      setDeleteConfirmRoomId(null);
     }
   };
 
@@ -126,7 +143,11 @@ export default function ManageRooms() {
             <tr key={room.id} className="border-b hover:bg-indigo-50">
               <td className="px-4 py-3">{room.location}</td>
               <td className="px-4 py-3">{room.capacity}</td>
-              <td className="px-4 py-3">{room.features || "-"}</td>
+              <td className="px-4 py-3">
+                {Array.isArray(room.features)
+                  ? room.features.join(", ")
+                  : room.features || "-"}
+              </td>
               <td className="px-4 py-3">
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
@@ -148,7 +169,7 @@ export default function ManageRooms() {
                 </button>
 
                 <button
-                  onClick={() => handleDelete(room.id)}
+                  onClick={() => confirmDelete(room.id)}
                   className="text-red-600 hover:text-red-900"
                   title="Delete Room"
                 >
@@ -160,7 +181,7 @@ export default function ManageRooms() {
         </tbody>
       </table>
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
@@ -244,6 +265,30 @@ export default function ManageRooms() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmRoomId !== null && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded p-6 max-w-sm w-full shadow-md">
+            <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+            <p className="mb-6">Are you sure you want to delete this room?</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={proceedDelete}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
