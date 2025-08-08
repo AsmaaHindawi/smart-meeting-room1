@@ -14,7 +14,7 @@ import MinutesPage from "./AdminDashboard/MinutesPage";
 import AdminSettings from "./AdminDashboard/AdminSetting";
 import { MinutesEditor } from "./AdminDashboard/MinutesEditor";
 import AddUsers from "./AdminDashboard/AddUsers";
-
+import MinutesDisplay from "./AdminDashboard/MinutesDisplay";
 // Employee
 import EmployeeLayout from "./EmployeeDashboard/EmployeeLayout";
 import EmployeeDashboard from "./EmployeeDashboard/EmployeeDashboard";
@@ -47,6 +47,7 @@ function App() {
           <Route path="/admin/settingsPage" element={<AdminSettings />} />
           <Route path="/admin/minutes"      element={<MinutesEditor />} />
           <Route path="/admin/addUsers"     element={<AddUsers />} />
+          <Route path="/admin/minutesPage"     element={<MinutesDisplay />} />
         </Route>
 
         {/* Employee */}

@@ -82,4 +82,16 @@ class MeetingAttendeeController extends Controller
         MeetingAttendee::destroy($id);
         return response()->json(null, 204);
     }
+
+    // MeetingAttendeeController.php
+
+public function getByMeeting($meetingId)
+{
+    $attendees = MeetingAttendee::with('user')
+        ->where('meeting_id', $meetingId)
+        ->get();
+
+    return response()->json($attendees);
+}
+
 }

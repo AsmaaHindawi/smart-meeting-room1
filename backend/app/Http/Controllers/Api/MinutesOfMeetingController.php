@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MinutesOfMeeting;
+use App\Models\Meeting;
+
 use Illuminate\Http\Request;
 
 class MinutesOfMeetingController extends Controller
@@ -33,6 +35,17 @@ class MinutesOfMeetingController extends Controller
         $mom = MinutesOfMeeting::findOrFail($id);
         return response()->json($mom, 200);
     }
+    public function showByMeetingId($meetingId)
+{
+    $mom = MinutesOfMeeting::where('meeting_id', $meetingId)->first();
+
+    if (!$mom) {
+        return response()->json(['message' => 'Minutes not found for this meeting'], 404);
+    }
+
+    return response()->json($mom, 200);
+}
+
 
     public function update(Request $request, $id)
     {
@@ -54,4 +67,10 @@ class MinutesOfMeetingController extends Controller
         MinutesOfMeeting::destroy($id);
         return response()->json(null, 204);
     }
+    public function meetingsWithAttendees()
+{
+    $meetings = Meeting::with('attendees:id,name,email')->get();
+    return response()->json($meetings, 200);
+}
+
 }

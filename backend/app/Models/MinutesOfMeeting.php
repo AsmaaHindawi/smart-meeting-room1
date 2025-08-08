@@ -8,12 +8,13 @@ class MinutesOfMeeting extends Model
 {
     protected $table = 'minutes_of_meetings';
 
-    protected $fillable = [
-        'action_items',
-        'discussion_points',
-        'decisions',
-        'file_url',
-    ];
+   protected $fillable = [
+    'action_items',
+    'discussion_points',
+    'decisions',
+    'file_url',
+    'meeting_id',  // add this line
+];
 
     public function meeting()
     {
