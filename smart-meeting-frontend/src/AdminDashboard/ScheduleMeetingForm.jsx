@@ -74,12 +74,12 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
 
   const userOptions = users.map((user) => ({
     value: user.id,
-    label: `${user.name} (${user.email})`,
+    label: `${user.username} (${user.email})`,
   }));
 
   const roomOptions = rooms.map((room) => (
     <option key={room.id} value={room.id} style={{ color: "black" }}>
-      {room.name}
+      {room.location}
     </option>
   ));
 
