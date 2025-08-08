@@ -1,28 +1,38 @@
-import { useEffect, useState } from "react";
+// Example: MeetingList.jsx
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const MeetingList = ({ title }) => {
+export default function MeetingList() {
   const [meetings, setMeetings] = useState([]);
 
   useEffect(() => {
-    fetch('/api/meetings') // Update with your actual backend endpoint
-      .then((response) => response.json())
-      .then((data) => setMeetings(data))
-      .catch((error) => console.error("Error fetching meetings:", error));
+    axios.get("http://localhost:8000/api/meetings") // your API endpoint
+      .then(res => {
+        setMeetings(res.data);
+      })
+      .catch(err => console.error(err));
   }, []);
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-md">
-      <h3 className="text-lg font-semibold mb-3 text-indigo-700">{title}</h3>
-      <ul className="space-y-2">
-        {meetings.map((meeting, index) => (
-          <li key={index} className="flex justify-between text-sm border-b pb-1">
-            <span>{meeting.time} - {meeting.title}</span>
-            <span className="text-gray-500">{meeting.room}</span>
-          </li>
-        ))}
-      </ul>
+    <div>
+      <h2>Meetings</h2>
+      {meetings.map(meeting => (
+        <div key={meeting.id} className="meeting-card">
+          <h3>{meeting.title}</h3>
+          <p>Room: {meeting.room?.name || "No Room Assigned"}</p>
+
+          <h4>Attendees:</h4>
+          <ul>
+            {meeting.attendees.map(attendee => (
+              <li key={attendee.id}>
+                {attendee.user
+                  ? (attendee.user.username || attendee.user.email)
+                  : "No user assigned"}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
-};
-
-export default MeetingList;
+}

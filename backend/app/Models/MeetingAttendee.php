@@ -19,8 +19,10 @@ class MeetingAttendee extends Model
         return $this->belongsTo(Meeting::class);
     }
 
+  
     public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+{
+    return $this->belongsTo(User::class);
+}
+
 }

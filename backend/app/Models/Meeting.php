@@ -17,6 +17,8 @@ class Meeting extends Model
     'recurring',
     'video',
 ];
+
+
 protected $casts = [
     'recurring' => 'boolean',
     'video' => 'boolean',
@@ -34,10 +36,10 @@ protected $casts = [
         return $this->belongsTo(Room::class);
     }
 
-    public function attendees()
-    {
-        return $this->hasMany(MeetingAttendee::class);
-    }
+   public function attendees()
+{
+    return $this->hasMany(MeetingAttendee::class)->with('user');
+}
 
     public function bookings()
     {

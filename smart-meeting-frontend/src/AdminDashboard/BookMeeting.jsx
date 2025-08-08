@@ -5,6 +5,7 @@ import ScheduleMeetingForm from "./ScheduleMeetingForm";
 export default function BookMeeting() {
   const [modalOpen, setModalOpen] = useState(false);
   const [meetings, setMeetings] = useState([]);
+  const [editMeeting, setEditMeeting] = useState(null); // store meeting being edited
 
   const fetchMeetings = async () => {
     try {
@@ -22,8 +23,17 @@ export default function BookMeeting() {
 
   const handleFormSubmit = async (formData) => {
     try {
-      const res = await fetch("http://localhost:8000/api/meetings", {
-        method: "POST",
+      let url = "http://localhost:8000/api/meetings";
+      let method = "POST";
+
+      // if editing, change API call
+      if (editMeeting) {
+        url = `http://localhost:8000/api/meetings/${editMeeting.id}`;
+        method = "PUT";
+      }
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -32,15 +42,16 @@ export default function BookMeeting() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to create meeting");
+        throw new Error(errorData.message || "Failed to save meeting");
       }
 
-      alert("Meeting scheduled successfully!");
+      alert(editMeeting ? "Meeting updated successfully!" : "Meeting scheduled successfully!");
       setModalOpen(false);
+      setEditMeeting(null);
       fetchMeetings();
     } catch (err) {
       console.error("Error:", err);
-      alert("Error scheduling meeting: " + err.message);
+      alert("Error: " + err.message);
     }
   };
 
@@ -62,12 +73,20 @@ export default function BookMeeting() {
     }
   };
 
+  const handleEditClick = (meeting) => {
+    setEditMeeting(meeting);
+    setModalOpen(true);
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-indigo-700">Book a Meeting</h1>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={() => {
+            setEditMeeting(null); // clear edit state
+            setModalOpen(true);
+          }}
           className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 flex items-center gap-2"
         >
           <FaCalendarAlt /> Schedule Meeting
@@ -76,12 +95,18 @@ export default function BookMeeting() {
 
       {modalOpen && (
         <ScheduleMeetingForm
-          onClose={() => setModalOpen(false)}
+          onClose={() => {
+            setModalOpen(false);
+            setEditMeeting(null);
+          }}
           onSubmit={handleFormSubmit}
+          initialData={editMeeting} // pass data if editing
         />
       )}
 
-      <h2 className="text-lg font-semibold mt-6 mb-2 text-gray-700">Scheduled Meetings</h2>
+      <h2 className="text-lg font-semibold mt-6 mb-2 text-gray-700">
+        Scheduled Meetings
+      </h2>
       <table className="w-full border text-sm">
         <thead className="bg-indigo-100">
           <tr>
@@ -100,21 +125,28 @@ export default function BookMeeting() {
               <td className="p-2 border">{meeting.title}</td>
               <td className="p-2 border">{meeting.date || "-"}</td>
               <td className="p-2 border">{meeting.time || "-"}</td>
-              <td className="p-2 border">{meeting.duration ? `${meeting.duration} min` : "-"}</td>
+              <td className="p-2 border">
+                {meeting.duration ? `${meeting.duration} hour` : "-"}
+              </td>
               <td className="p-2 border">{meeting.room?.location || "-"}</td>
               <td className="p-2 border">
-                {meeting.attendees && meeting.attendees.length > 0 ? (
-                  <ul className="list-disc ml-4">
-                    {meeting.attendees.map((a) => (
-                      <li key={a.id}>{a.username || a.email}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <span className="italic text-gray-400">None</span>
-                )}
+                <ul>
+                  {meeting.attendees?.map((attendee) => (
+                    <li key={attendee.id}>
+                      {attendee.user
+                        ? attendee.user.username ||
+                          attendee.user.email ||
+                          "No name/email"
+                        : "No user assigned"}
+                    </li>
+                  ))}
+                </ul>
               </td>
               <td className="p-2 border text-center">
-                <button className="text-blue-600 hover:underline mr-2">
+                <button
+                  onClick={() => handleEditClick(meeting)}
+                  className="text-blue-600 hover:underline mr-2"
+                >
                   <FaEdit />
                 </button>
                 <button

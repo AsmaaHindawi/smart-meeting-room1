@@ -9,6 +9,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [errorRooms, setErrorRooms] = useState(null);
   const [errorUsers, setErrorUsers] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [form, setForm] = useState({
     title: "",
@@ -21,6 +22,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
     video: false,
   });
 
+  // Fetch Rooms
   useEffect(() => {
     async function fetchRooms() {
       try {
@@ -38,6 +40,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
     fetchRooms();
   }, []);
 
+  // Fetch Users
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -55,6 +58,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
     fetchUsers();
   }, []);
 
+  // Populate form for editing
   useEffect(() => {
     if (initialData) {
       setForm({
@@ -62,7 +66,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
         date: initialData.date || "",
         time: initialData.time || "",
         duration: initialData.duration || "",
-        attendees: initialData.attendees || [],
+        attendees: initialData.attendees?.map(a => a.id) || [],
         room_id: initialData.room_id || null,
         recurring: initialData.recurring || false,
         video: initialData.video || false,
@@ -99,7 +103,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
@@ -114,9 +118,13 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
     };
 
     if (typeof onSubmit === "function") {
-      onSubmit(payload);
-    } else {
-      console.error("onSubmit prop is not a function");
+      try {
+        await onSubmit(payload);
+        setSuccessMessage(initialData ? "Meeting updated successfully!" : "Meeting booked successfully!");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } catch (err) {
+        console.error("Error submitting form:", err);
+      }
     }
   };
 
@@ -144,6 +152,13 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
         >
           ✕
         </button>
+
+        {successMessage && (
+          <div className="mb-4 p-2 bg-green-100 text-green-800 rounded">
+            {successMessage}
+          </div>
+        )}
+
         <h2 className="text-xl font-semibold text-indigo-700 mb-4">
           {initialData ? "Edit Meeting" : "Schedule a Meeting"}
         </h2>
@@ -181,7 +196,7 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
           <input
             type="number"
             name="duration"
-            placeholder="Duration (minutes)"
+            placeholder="Duration (hours)"
             value={form.duration}
             onChange={handleChange}
             required
@@ -205,16 +220,15 @@ export default function ScheduleMeetingForm({ onClose, initialData, onSubmit }) 
             />
           </div>
 
-    <select
-  name="room_id"
-  value={form.room_id || ""}
-  onChange={handleChange}
-  className="w-full p-2 border rounded text-black bg-white"
-  required
->
-  {roomOptions}
-</select>
-
+          <select
+            name="room_id"
+            value={form.room_id || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded text-black bg-white"
+            required
+          >
+            {roomOptions}
+          </select>
 
           <div className="flex gap-4 items-center">
             <label className="flex items-center gap-2">
