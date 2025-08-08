@@ -101,12 +101,12 @@ export default function BookMeeting() {
               <td className="p-2 border">{meeting.date || "-"}</td>
               <td className="p-2 border">{meeting.time || "-"}</td>
               <td className="p-2 border">{meeting.duration ? `${meeting.duration} min` : "-"}</td>
-              <td className="p-2 border">{meeting.room?.name || "-"}</td>
+              <td className="p-2 border">{meeting.room?.location || "-"}</td>
               <td className="p-2 border">
                 {meeting.attendees && meeting.attendees.length > 0 ? (
                   <ul className="list-disc ml-4">
                     {meeting.attendees.map((a) => (
-                      <li key={a.id}>{a.name || a.email}</li>
+                      <li key={a.id}>{a.username || a.email}</li>
                     ))}
                   </ul>
                 ) : (

@@ -22,6 +22,12 @@ public function up(): void
         $table->string('title');
         $table->text('agenda')->nullable();
         $table->timestamps();
+
+        $table->date('date')->nullable();
+        $table->time('time')->nullable();
+        $table->integer('duration')->nullable();
+         $table->boolean('recurring')->default(false);
+        $table->boolean('video')->default(false);
     });
 }
 

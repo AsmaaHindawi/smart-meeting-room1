@@ -6,12 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Meeting extends Model
 {
-    protected $fillable = [
-        'room_id',
-        'mom_id',
-        'title',
-        'agenda',
-    ];
+ protected $fillable = [
+    'room_id',
+    'mom_id',
+    'title',
+    'agenda',
+    'date',
+    'time',
+    'duration',
+    'recurring',
+    'video',
+];
+protected $casts = [
+    'recurring' => 'boolean',
+    'video' => 'boolean',
+];
+
 
     public function minutes()
     {
