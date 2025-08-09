@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { FaCalendarAlt, FaVideo, FaFileAlt } from "react-icons/fa";
 import Topbar from "./Topbar";
 import QuickActions from "./QuickActions";
@@ -12,7 +12,7 @@ export default function AdminDashboard() {
   const [contacts, setContacts] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/contact")
+    api.get("/contact")
       .then((res) => {
         setContacts(res.data);
       })

@@ -1,12 +1,12 @@
 // Example: MeetingList.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 export default function MeetingList() {
   const [meetings, setMeetings] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/meetings") // your API endpoint
+    api.get("/meetings") // your API endpoint
       .then(res => {
         setMeetings(res.data);
       })
