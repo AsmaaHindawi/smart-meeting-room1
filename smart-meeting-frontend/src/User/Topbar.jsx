@@ -12,9 +12,7 @@ const Topbar = () => {
 
       <div className="flex items-center gap-4">
      
-        <button className="text-gray-600 hover:text-indigo-600">
-          <FaBell size={20} />
-        </button>
+       
       </div>
     </header>
   );

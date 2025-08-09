@@ -25,13 +25,13 @@ export default function AdminDashboard() {
     <div className="flex flex-col h-full bg-gray-50">
       <Topbar />
       <main className="p-6 space-y-6 overflow-auto flex-1">
-        <QuickActions
-          actions={[
-            { label: "Schedule Meeting", icon: <FaCalendarAlt />, to: "/book-meeting" },
-            { label: "Join Now", icon: <FaVideo />, to: "/meeting/active" },
-            { label: "View Minutes", icon: <FaFileAlt />, to: "/minutes/review" },
-          ]}
-        />
+     <QuickActions
+  actions={[
+    { label: "Schedule Meeting", icon: <FaCalendarAlt />, to: "/book-meeting" },
+    { label: "View Minutes", icon: <FaFileAlt />, to: "admin/minutes" },
+  ]}
+/>
+
 
         {/* <MeetingList
           title="Upcoming Meetings"
@@ -51,13 +51,8 @@ export default function AdminDashboard() {
           /> */}
         </div>
 
-        <AnalyticsCard
-          title="Room Usage"
-          chartData={{
-            labels: ["Room A", "Room B", "Room C"],
-            usage: [40, 30, 10],
-          }}
-        />
+<AnalyticsCard title="Room Usage" />
+
 
     <div className="bg-white rounded-xl shadow-md p-6">
   <h2 className="text-lg font-semibold text-[#1E293B] mb-4">Contact Messages</h2>

@@ -7,7 +7,7 @@ const QuickActions = () => {
     <div className="flex gap-4 flex-wrap">
    
       <a
-        href="/MinutesPage"
+        href="/minutes"
         className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition"
       >
         <FaFileAlt />
