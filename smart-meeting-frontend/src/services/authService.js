@@ -1,18 +1,32 @@
 // src/services/authService.js
+
 import api     from '../api';      // your existing /api Axios instance
 import authApi from '../authApi';  // your existing root-level Axios instance
 
-// 1. Login via Sanctum cookie
+// 1. Login via Sanctum cookie + manual XSRF header
 export function login({ email, password }) {
   return authApi
-    .get('/sanctum/csrf-cookie')              // ← NEW: fetch CSRF cookie first
-    .then(() =>
-      authApi.post('/login', {                // then login on web route
-        email,
-        password
-      })
-    )
-    // store the token (returned in JSON) for /api calls
+    // 1a) get the CSRF cookie from Sanctum
+    .get('/sanctum/csrf-cookie')
+    .then(() => {
+      // 1b) pull raw XSRF-TOKEN value out of document.cookie
+      const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+      const xsrfToken = match
+        ? decodeURIComponent(match[1])
+        : '';
+
+      // 1c) send login with explicit X-XSRF-TOKEN header
+      return authApi.post(
+        '/login',
+        { email, password },
+        {
+          headers: {
+            'X-XSRF-TOKEN': xsrfToken,
+          },
+        }
+      );
+    })
+    // 1d) on success, store token for future /api calls
     .then(res => {
       const { token } = res.data;
       localStorage.setItem('token', token);
