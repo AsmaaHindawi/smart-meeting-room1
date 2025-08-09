@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 
 function Navbar() {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -23,7 +23,7 @@ function Navbar() {
     setStatus("");
 
     try {
-      await axios.post("http://localhost:8000/api/contact", formData);
+      await api.post("/contact", formData);
       setStatus("Message sent successfully!");
       setFormData({ name: "", email: "", message: "" });
       setTimeout(() => {
