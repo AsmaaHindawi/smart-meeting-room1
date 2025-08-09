@@ -8,16 +8,22 @@ class MinutesOfMeeting extends Model
 {
     protected $table = 'minutes_of_meetings';
 
-   protected $fillable = [
+protected $fillable = [
+    'meeting_id',
     'action_items',
     'discussion_points',
     'decisions',
-    'file_url',
-    'meeting_id',  // add this line
+    'file_url'
 ];
+
 
     public function meeting()
     {
         return $this->hasOne(Meeting::class, 'mom_id');
     }
+public function attendees() {
+    return $this->hasMany(MeetingAttendee::class, 'meeting_id', 'meeting_id'); // Adjust keys as needed
+}
+
+
 }

@@ -50,19 +50,30 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Logout (revoke token)
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
-
-    // CRUD for all your entities
-   Route::apiResource('users',         UserController::class);
+  Route::apiResource('users',         UserController::class);
     Route::apiResource('attendees',     MeetingAttendeeController::class);
 
   Route::apiResource('rooms',         RoomController::class);
   Route::apiResource('meetings',      MeetingController::class);
     
-    Route::apiResource('minutes',       MinutesOfMeetingController::class);
+    
     Route::apiResource('bookings',      BookingController::class);
     Route::apiResource('notifications', NotificationController::class);
-});
+    Route::apiResource('minutes',       MinutesOfMeetingController::class);
+   Route::get('/attendees/meeting/{meeting}', [MeetingAttendeeController::class, 'getByMeeting']);
+
+
+
+
+
+Route::get('/minutes/meeting/{meetingId}', [MinutesOfMeetingController::class, 'showByMeeting']);
+Route::post('/minutes/meeting/{meetingId}', [MinutesOfMeetingController::class, 'storeByMeeting']);
+
+    // CRUD for all your entities
    
+});
+
+  
 use App\Http\Controllers\ContactController;
 
 // Route::post('/contact', [ContactController::class, 'store']);

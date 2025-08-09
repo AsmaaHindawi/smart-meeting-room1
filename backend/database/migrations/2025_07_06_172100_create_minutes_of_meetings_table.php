@@ -17,6 +17,7 @@ public function up(): void
         $table->text('discussion_points')->nullable();
         $table->text('decisions')->nullable();
         $table->string('file_url')->nullable();
+        $table->unsignedBigInteger('meeting_id')->after('id');
         $table->timestamps();
     });
 }

@@ -1,172 +1,125 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar, Views } from "react-big-calendar";
 import { localizer } from "./calendarSetup";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { FaUsers, FaPhone } from "react-icons/fa";
+import axios from "axios";
+
+const roomColors = [
+  "#7d65fb",
+  "#f97316",
+  "#10b981",
+  "#ef4444",
+  "#3b82f6",
+  "#d946ef",
+  "#facc15",
+];
+
+function parseDuration(durationStr) {
+  const num = parseInt(durationStr);
+  return isNaN(num) ? 1 : num; // default 1 hour if invalid
+}
 
 const RoomCalendar = () => {
-  const fullEvents = [
-    {
-      title: "Team Sync",
-      start: new Date(2025, 6, 7, 10, 0),
-      end: new Date(2025, 6, 7, 11, 0),
-      room: "Room A",
-      organizer: "Sarah",
-      icon: <FaUsers />,
-    },
-    {
-      title: "Client Call",
-      start: new Date(2025, 6, 8, 15, 0),
-      end: new Date(2025, 6, 8, 16, 0),
-      room: "Room C",
-      organizer: "Mark",
-      icon: <FaPhone />,
-    },
-    {
-      title: "Budget Meeting",
-      start: new Date(2025, 6, 9, 14, 0),
-      end: new Date(2025, 6, 9, 15, 0),
-      room: "Room A",
-      organizer: "Sarah",
-      icon: <FaUsers />,
-    },
-  ];
-
+  const [rooms, setRooms] = useState([]);
+  const [meetings, setMeetings] = useState([]);
   const [roomFilter, setRoomFilter] = useState("All");
-  const [organizerFilter, setOrganizerFilter] = useState("All");
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState(Views.MONTH);
 
-  const filteredEvents = fullEvents.filter((event) => {
-    const roomMatch = roomFilter === "All" || event.room === roomFilter;
-    const organizerMatch = organizerFilter === "All" || event.organizer === organizerFilter;
-    return roomMatch && organizerMatch;
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/rooms").then(res => setRooms(res.data));
+    axios.get("http://localhost:8000/api/meetings").then(res => setMeetings(res.data));
+  }, []);
+
+  // Map room name to color
+  const roomColorMap = {};
+  rooms.forEach((room, idx) => {
+    roomColorMap[room.location.trim()] = roomColors[idx % roomColors.length];
   });
 
-  const uniqueRooms = [...new Set(fullEvents.map((e) => e.room))];
-  const uniqueOrganizers = [...new Set(fullEvents.map((e) => e.organizer))];
+  // Create calendar events with correct end date
+  const fullEvents = meetings.map(meeting => {
+    const start = new Date(meeting.start_time);
+    const durationHours = parseDuration(meeting.duration);
+    const end = new Date(start.getTime() + durationHours * 60 * 60 * 1000);
+    const roomName = rooms.find(r => r.id === meeting.room_id)?.location.trim() || "Unknown Room";
 
-  const handleNavigate = (action) => {
-    const newDate = new Date(date);
-    if (action === "TODAY") setDate(new Date());
-    else if (action === "NEXT") {
-      if (view === Views.MONTH) newDate.setMonth(newDate.getMonth() + 1);
-      else if (view === Views.WEEK) newDate.setDate(newDate.getDate() + 7);
-      else newDate.setDate(newDate.getDate() + 1);
-      setDate(newDate);
-    } else if (action === "BACK") {
-      if (view === Views.MONTH) newDate.setMonth(newDate.getMonth() - 1);
-      else if (view === Views.WEEK) newDate.setDate(newDate.getDate() - 7);
-      else newDate.setDate(newDate.getDate() - 1);
-      setDate(newDate);
-    }
-  };
+    return {
+      id: meeting.id,
+      title: meeting.title,
+      start,
+      end,
+      room: roomName,
+      color: roomColorMap[roomName] || "#7d65fb",
+    };
+  });
+
+  // Filter events by roomFilter
+  const filteredEvents = roomFilter === "All" ? fullEvents : fullEvents.filter(e => e.room === roomFilter);
+
+  // Unique room list for dropdown
+  const uniqueRooms = ["All", ...new Set(fullEvents.map(e => e.room))];
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-6xl mx-auto mt-6">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-[#7d65fb]">Room Availability</h2>
-        <p className="text-gray-500 mt-1 text-sm">Switch between month, week, or day views</p>
-      </div>
+      <h2 className="text-3xl font-bold text-[#7d65fb] mb-4">Room Availability</h2>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
-        <div className="flex gap-4 items-center">
-          <select
-            value={roomFilter}
-            onChange={(e) => setRoomFilter(e.target.value)}
-            className="border rounded-md px-4 py-2"
-          >
-            <option value="All">All Rooms</option>
-            {uniqueRooms.map((room) => (
-              <option key={room} value={room}>
-                {room}
-              </option>
-            ))}
-          </select>
+      <div className="flex justify-between mb-6 gap-4">
+        <select
+          value={roomFilter}
+          onChange={(e) => setRoomFilter(e.target.value)}
+          className="border rounded-md px-4 py-2 max-w-xs"
+        >
+          {uniqueRooms.map(room => (
+            <option key={room} value={room}>{room}</option>
+          ))}
+        </select>
 
-          <select
-            value={organizerFilter}
-            onChange={(e) => setOrganizerFilter(e.target.value)}
-            className="border rounded-md px-4 py-2"
-          >
-            <option value="All">All Organizers</option>
-            {uniqueOrganizers.map((org) => (
-              <option key={org} value={org}>
-                {org}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleNavigate("TODAY")}
-            className="px-4 py-1.5 rounded-md bg-[#7d65fb] text-white font-medium hover:bg-[#6b59e0] transition"
-          >
-            Today
-          </button>
-          <button
-            onClick={() => handleNavigate("BACK")}
-            className="px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition"
-          >
-            Back
-          </button>
-          <button
-            onClick={() => handleNavigate("NEXT")}
-            className="px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition"
-          >
-            Next
-          </button>
+        <div className="flex gap-2">
+          <button onClick={() => setView(Views.MONTH)} className={`px-4 py-1.5 rounded-md ${view === Views.MONTH ? "bg-[#7d65fb] text-white" : "border border-gray-300"}`}>Month</button>
+          <button onClick={() => setView(Views.WEEK)} className={`px-4 py-1.5 rounded-md ${view === Views.WEEK ? "bg-[#7d65fb] text-white" : "border border-gray-300"}`}>Week</button>
+          <button onClick={() => setView(Views.DAY)} className={`px-4 py-1.5 rounded-md ${view === Views.DAY ? "bg-[#7d65fb] text-white" : "border border-gray-300"}`}>Day</button>
         </div>
       </div>
 
-      {/* View Switch */}
-      <div className="flex gap-2 mb-4">
-        {["month", "week", "day"].map((v) => (
-          <button
-            key={v}
-            onClick={() => setView(v)}
-            className={`px-4 py-1.5 rounded-md font-medium transition ${
-              view === v
-                ? "bg-[#e4e0fe] text-[#7d65fb]"
-                : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            {v.charAt(0).toUpperCase() + v.slice(1)}
-          </button>
-        ))}
-      </div>
+      <Calendar
+        localizer={localizer}
+        events={filteredEvents}
+        startAccessor="start"
+        endAccessor="end"
+        date={date}
+        view={view}
+        onView={setView}
+        onNavigate={setDate}
+        views={[Views.MONTH, Views.WEEK, Views.DAY]}
+        style={{ height: "70vh" }}
+        eventPropGetter={(event) => ({
+          style: {
+            backgroundColor: event.color,
+            borderRadius: "6px",
+            color: "white",
+            border: "none",
+          },
+        })}
+        dayPropGetter={date => {
+          const dayHasEvent = filteredEvents.some(event => {
+            const eventStart = new Date(event.start);
+            const eventEnd = new Date(event.end);
+            const dayStart = new Date(date);
+            dayStart.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(date);
+            dayEnd.setHours(23, 59, 59, 999);
 
-      {/* Calendar */}
-      <div className="border border-gray-200 rounded-xl overflow-hidden">
-        <Calendar
-          localizer={localizer}
-          events={filteredEvents}
-          startAccessor="start"
-          endAccessor="end"
-          date={date}
-          view={view}
-          onView={setView}
-          onNavigate={setDate}
-          views={["month", "week", "day"]}
-          min={new Date(1970, 1, 1, 8, 0)}
-          max={new Date(1970, 1, 1, 18, 0)}
-          style={{ height: "70vh" }}
-          eventPropGetter={() => ({
-            className:
-              "bg-[#7d65fb] text-white text-sm px-3 py-1 rounded-md shadow-sm hover:bg-[#6b59e0] transition",
-          })}
-          components={{
-            event: ({ event }) => (
-              <div className="flex items-center gap-2">
-                {event.icon}
-                <span>{event.title}</span>
-              </div>
-            ),
-          }}
-          toolbar={false}
-        />
-      </div>
+            return eventStart <= dayEnd && eventEnd >= dayStart;
+          });
+
+          return {
+            style: {
+              backgroundColor: dayHasEvent ? "#dbeafe" : undefined,
+              borderRadius: dayHasEvent ? "8px" : undefined,
+            },
+          };
+        }}
+      />
     </div>
   );
 };

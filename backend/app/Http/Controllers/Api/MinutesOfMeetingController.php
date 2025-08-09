@@ -12,23 +12,31 @@ use Illuminate\Http\Request;
 
 class MinutesOfMeetingController extends Controller
 {
-    public function index()
-    {
-        return response()->json(MinutesOfMeeting::all(), 200);
-    }
+    // public function index()
+    // {
+        
+    //     return response()->json(MinutesOfMeeting::all(), 200);
+    // }
+public function index() {
+    $minutes = MinutesOfMeeting::with('attendees.user')->get();
+    return response()->json($minutes);
+}
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'action_items'      => 'nullable|string',
-            'discussion_points' => 'nullable|string',
-            'decisions'         => 'nullable|string',
-            'file_url'          => 'nullable|url',
-        ]);
+   
+public function store(Request $request)
+{
+    $data = $request->validate([
+        'meeting_id'        => 'required|exists:meetings,id',
+        'action_items'      => 'nullable|string',
+        'discussion_points' => 'nullable|string',
+        'decisions'         => 'nullable|string',
+        'file_url'          => 'nullable|url',
+        'attendees'         => 'array' // optional
+    ]);
 
-        $mom = MinutesOfMeeting::create($data);
-        return response()->json($mom, 201);
-    }
+    $mom = MinutesOfMeeting::create($data);
+    return response()->json($mom, 201);
+}
 
     public function show($id)
     {
@@ -46,6 +54,18 @@ class MinutesOfMeetingController extends Controller
     return response()->json($mom, 200);
 }
 
+// public function storeByMeeting(Request $request, $meetingId)
+// {
+//     $minutes = Minutes::updateOrCreate(
+//         ['meeting_id' => $meetingId],
+//         ['content' => $request->input('content')]
+//     );
+
+//     return response()->json([
+//         'message' => 'Minutes saved successfully',
+//         'data' => $minutes
+//     ]);
+// }
 
     public function update(Request $request, $id)
     {
@@ -72,5 +92,38 @@ class MinutesOfMeetingController extends Controller
     $meetings = Meeting::with('attendees:id,name,email')->get();
     return response()->json($meetings, 200);
 }
+ public function getByMeeting($meetingId)
+    {
+        $minutes = MinutesOfMeeting::where('meeting_id', $meetingId)->first();
 
+        if (!$minutes) {
+            return response()->json([
+                'message' => 'No minutes found for this meeting',
+                'data' => null
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Minutes found',
+            'data' => $minutes
+        ]);
+    }
+
+    // ✅ Save/update minutes for a meeting
+    public function storeByMeeting(Request $request, $meetingId)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string'
+        ]);
+
+        $minutes = MinutesOfMeeting::updateOrCreate(
+            ['meeting_id' => $meetingId],
+            ['content' => $validated['content']]
+        );
+
+        return response()->json([
+            'message' => 'Minutes saved successfully',
+            'data' => $minutes
+        ]);
+    }
 }

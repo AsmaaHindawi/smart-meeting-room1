@@ -33,22 +33,22 @@ export default function AdminDashboard() {
           ]}
         />
 
-        <MeetingList
+        {/* <MeetingList
           title="Upcoming Meetings"
           meetings={[
             { time: "10:00 AM", title: "Team Sync", room: "Room A" },
             { time: "1:30 PM", title: "Budget Review", room: "Room B" },
           ]}
-        />
+        /> */}
 
-        <div className="grid md:grid-cols-2 gap-2">
+        <div className="grid md:grid-cols-1 gap-2">
           <RoomCalendar />
-          <NotificationPanel
+          {/* <NotificationPanel
             notifications={[
               { type: "info", message: "Room C is under maintenance" },
               { type: "reminder", message: "Meeting with HR at 3 PM" },
             ]}
-          />
+          /> */}
         </div>
 
         <AnalyticsCard

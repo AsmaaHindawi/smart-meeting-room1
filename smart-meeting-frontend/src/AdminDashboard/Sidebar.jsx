@@ -22,7 +22,6 @@ const Sidebar = () => {
     { name: "Manage Rooms", icon: <FaDoorOpen />, path: "/admin/manageRooms" },
     { name: "Bookings", icon: <FaCalendarAlt />, path: "/admin/bookMeeting" },
     { name: "Minutes", icon: <FaFileAlt />, path: "/admin/minutes" },
-     { name: "Minutes", icon: <FaFileAlt />, path: "/admin/minutesPage" },
   { name: "Add Users", icon: <FaUserPlus />, path: "/admin/addUsers" },
   { name: "Settings", icon: <FaCog />, path: "/admin/settingsPage" },
 

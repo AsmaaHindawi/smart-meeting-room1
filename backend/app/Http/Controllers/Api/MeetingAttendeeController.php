@@ -94,4 +94,5 @@ public function getByMeeting($meetingId)
     return response()->json($attendees);
 }
 
+
 }
