@@ -1,6 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import Select from "react-select";
-import { FaTrash, FaEdit, FaEye, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import {
+  FaTrash,
+  FaEdit,
+  FaChevronDown,
+  FaChevronUp,
+  FaFilePdf,
+} from "react-icons/fa";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export const MinutesEditor = () => {
   const agendaRef = useRef();
@@ -55,7 +63,7 @@ export const MinutesEditor = () => {
     }
 
     if (minutesId) {
-      // We already have minutes loaded (editing), skip fetch to avoid overwriting inputs
+      // Already editing an existing minutes, skip fetching to avoid overwrite
       return;
     }
 
@@ -166,10 +174,6 @@ export const MinutesEditor = () => {
     setMinutesId(minutes.id);
   };
 
-  const viewFromTable = (minutes) => {
-    alert(`Agenda:\n${minutes.action_items}\n\nDecisions:\n${minutes.decisions}`);
-  };
-
   const clearForm = () => {
     setSelectedMeeting(null);
     setSelectedAttendees([]);
@@ -211,6 +215,44 @@ export const MinutesEditor = () => {
 
   const truncate = (text, maxLength = 60) =>
     text?.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+
+  // New function: Download PDF for a specific minutes entry
+  const downloadMinutesPdfFromEntry = (minutes) => {
+    const doc = new jsPDF();
+
+    const meetingObj = meetings.find((m) => m.value === minutes.meeting_id);
+
+    doc.setFontSize(18);
+    doc.text("Minutes of Meeting", 14, 22);
+
+    doc.setFontSize(14);
+    doc.text(`Meeting: ${meetingObj?.label || `Meeting #${minutes.meeting_id}`}`, 14, 32);
+
+    doc.setFontSize(12);
+    doc.text("Agenda:", 14, 42);
+    doc.setFontSize(11);
+    doc.text(minutes.action_items || "No agenda provided.", 14, 50, { maxWidth: 180 });
+
+    doc.setFontSize(12);
+    doc.text("Decisions:", 14, 75);
+    doc.setFontSize(11);
+    doc.text(minutes.decisions || "No decisions provided.", 14, 83, { maxWidth: 180 });
+
+    doc.setFontSize(12);
+    doc.text("Attendees:", 14, 110);
+    doc.setFontSize(11);
+    const attendeesText = minutes.attendees?.length
+      ? minutes.attendees.map((a) => a.user?.username || a.user?.email).join(", ")
+      : "No attendees";
+    doc.text(attendeesText, 14, 118, { maxWidth: 180 });
+
+    doc.save(
+      `Minutes_${(meetingObj?.label || `Meeting_${minutes.meeting_id}`).replace(
+        /\s+/g,
+        "_"
+      )}.pdf`
+    );
+  };
 
   return (
     <div className="min-h-screen py-10 px-4 bg-gray-50 flex flex-col items-center">
@@ -304,7 +346,7 @@ export const MinutesEditor = () => {
                 <th className="text-left p-3">Meeting</th>
                 <th className="text-left p-3 max-w-xs">Agenda</th>
                 <th className="text-left p-3 max-w-xs">Decisions</th>
-                <th className="text-left p-3 w-36">Actions</th>
+                <th className="text-left p-3 w-56">Actions</th> {/* wider to fit the new button */}
               </tr>
             </thead>
             <tbody>
@@ -327,10 +369,16 @@ export const MinutesEditor = () => {
                         onClick={() => toggleRow(m.id)}
                       >
                         <td className="p-3 align-top">{meeting?.label || `Meeting #${m.meeting_id}`}</td>
-                        <td className="p-3 max-w-xs truncate align-top" title={m.action_items}>
+                        <td
+                          className="p-3 max-w-xs truncate align-top"
+                          title={m.action_items}
+                        >
                           {truncate(m.action_items, 80)}
                         </td>
-                        <td className="p-3 max-w-xs truncate align-top" title={m.decisions}>
+                        <td
+                          className="p-3 max-w-xs truncate align-top"
+                          title={m.decisions}
+                        >
                           {truncate(m.decisions, 80)}
                         </td>
                         <td className="p-3 flex items-center space-x-3 justify-start">
@@ -345,7 +393,7 @@ export const MinutesEditor = () => {
                           >
                             <FaEdit />
                           </button>
-                        
+
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -357,6 +405,7 @@ export const MinutesEditor = () => {
                           >
                             <FaTrash />
                           </button>
+
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -367,6 +416,19 @@ export const MinutesEditor = () => {
                             aria-label={isExpanded ? "Collapse details" : "Expand details"}
                           >
                             {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                          </button>
+
+                          {/* New Download PDF button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadMinutesPdfFromEntry(m);
+                            }}
+                            title="Download PDF"
+                            className="text-red-700 hover:text-red-900"
+                            aria-label="Download minutes PDF"
+                          >
+                            <FaFilePdf />
                           </button>
                         </td>
                       </tr>
