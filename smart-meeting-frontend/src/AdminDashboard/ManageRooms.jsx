@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
-import api from "../api";
+import axios from "axios";
 
 export default function ManageRooms() {
   const [rooms, setRooms] = useState([]);
@@ -18,10 +18,10 @@ export default function ManageRooms() {
     is_active: true,
   });
 
-  const apiBase = "/rooms";
+  const apiBase = "http://localhost:8000/api/rooms";
 
   useEffect(() => {
-    api
+    axios
       .get(apiBase)
       .then((res) => setRooms(res.data))
       .catch((err) => console.error("Failed to fetch rooms:", err));
@@ -79,12 +79,12 @@ export default function ManageRooms() {
 
     try {
       if (editRoom) {
-        const res = await api.put(`${apiBase}/${editRoom.id}`, payload);
+        const res = await axios.put(`${apiBase}/${editRoom.id}`, payload);
         setRooms((prev) =>
           prev.map((r) => (r.id === editRoom.id ? res.data : r))
         );
       } else {
-        const res = await api.post(apiBase, payload);
+        const res = await axios.post(apiBase, payload);
         setRooms((prev) => [...prev, res.data]);
       }
       setModalOpen(false);
@@ -106,7 +106,7 @@ export default function ManageRooms() {
   // Proceed with deletion
   const proceedDelete = async () => {
     try {
-      await api.delete(`${apiBase}/${deleteConfirmRoomId}`);
+      await axios.delete(`${apiBase}/${deleteConfirmRoomId}`);
       setRooms((prev) => prev.filter((r) => r.id !== deleteConfirmRoomId));
     } catch (err) {
       console.error("Failed to delete room:", err);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import api from "../api";
+import axios from "axios";
 
-const apiBase = "/users";
+const apiBase = "http://localhost:8000/api/users";
 
 export default function UsersManager() {
   const [users, setUsers] = useState([]);
@@ -21,7 +21,7 @@ export default function UsersManager() {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get(apiBase);
+      const res = await axios.get(apiBase);
       setUsers(res.data);
     } catch (err) {
       console.error("Failed to fetch users:", err);
@@ -64,9 +64,9 @@ export default function UsersManager() {
       if (isEditing) {
         const payload = { ...formData };
         if (!payload.password) delete payload.password;
-        await api.put(`${apiBase}/${formData.id}`, payload);
+        await axios.put(`${apiBase}/${formData.id}`, payload);
       } else {
-        await api.post(apiBase, formData);
+        await axios.post(apiBase, formData);
       }
       fetchUsers();
       resetForm();
@@ -79,7 +79,7 @@ export default function UsersManager() {
   // NEW: Confirm delete inside modal
   const confirmDelete = async () => {
     try {
-      await api.delete(`${apiBase}/${deleteUserId}`);
+      await axios.delete(`${apiBase}/${deleteUserId}`);
       setUsers((prev) => prev.filter((user) => user.id !== deleteUserId));
     } catch (err) {
       console.error("Failed to delete user:", err);

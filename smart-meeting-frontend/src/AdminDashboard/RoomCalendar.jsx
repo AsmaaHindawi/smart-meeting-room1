@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Views } from "react-big-calendar";
 import { localizer } from "./calendarSetup";
-import api from "../api";
+import axios from "axios";
 
 const roomColors = [
   "#7d65fb",
@@ -26,8 +26,8 @@ const RoomCalendar = () => {
   const [view, setView] = useState(Views.MONTH);
 
   useEffect(() => {
-    api.get("/rooms").then(res => setRooms(res.data));
-    api.get("/meetings").then(res => setMeetings(res.data));
+    axios.get("http://localhost:8000/api/rooms").then(res => setRooms(res.data));
+    axios.get("http://localhost:8000/api/meetings").then(res => setMeetings(res.data));
   }, []);
 
   // Map room name to color

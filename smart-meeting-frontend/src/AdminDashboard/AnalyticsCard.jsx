@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../api";
+import axios from "axios";
 
 const AnalyticsCard = ({ title, chartData }) => {
   return (
@@ -28,8 +28,8 @@ export default function RoomUsageAnalytics() {
     const fetchData = async () => {
       try {
         const [roomsRes, meetingsRes] = await Promise.all([
-          api.get("/rooms"),
-          api.get("/meetings"),
+          axios.get("http://localhost:8000/api/rooms"),
+          axios.get("http://localhost:8000/api/meetings"),
         ]);
         setRooms(roomsRes.data);
         setMeetings(meetingsRes.data);
