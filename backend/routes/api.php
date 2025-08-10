@@ -55,8 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
   Route::apiResource('rooms',         RoomController::class);
   Route::apiResource('meetings',      MeetingController::class);
-    
-    
     Route::apiResource('bookings',      BookingController::class);
     Route::apiResource('notifications', NotificationController::class);
     Route::apiResource('minutes',       MinutesOfMeetingController::class);
@@ -70,10 +68,10 @@ Route::get('/minutes/meeting/{meetingId}', [MinutesOfMeetingController::class, '
 Route::post('/minutes/meeting/{meetingId}', [MinutesOfMeetingController::class, 'storeByMeeting']);
 
     // CRUD for all your entities
-   
+
 });
 
-  
+
 use App\Http\Controllers\ContactController;
 
 // Route::post('/contact', [ContactController::class, 'store']);
