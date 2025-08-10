@@ -1,26 +1,31 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext.jsx';
+import { getDashboardPath } from '../utils/rolePaths';
 import './../App.css';
 
 function Login() {
   const { signIn } = useContext(AuthContext);
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError]       = useState(null);
-  const navigate                = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
+    setSubmitting(true);
 
     try {
-      await signIn({ email, password });
-      navigate('/');
+      // signIn returns the authenticated user (with .roles)
+      const me = await signIn({ email, password });
+      // Redirect to role-based dashboard
+      navigate(getDashboardPath(me.roles));
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'An unexpected error occurred'
-      );
+      setError(err?.response?.data?.message || 'An unexpected error occurred');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -50,9 +55,7 @@ function Login() {
           <h2 className="text-3xl font-semibold text-center text-gray-800 mb-1">
             Sign In
           </h2>
-          <p className="text-sm text-center text-gray-400 mb-6">
-            Welcome !
-          </p>
+          <p className="text-sm text-center text-gray-400 mb-6">Welcome !</p>
 
           {error && (
             <div className="mb-4 text-red-600 text-center">
@@ -68,8 +71,9 @@ function Login() {
                 placeholder="example@gmail.com"
                 className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -80,16 +84,19 @@ function Login() {
                 placeholder="••••••••"
                 className="w-full mt-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold hover:from-indigo-600 hover:to-indigo-700 transition"
+              disabled={submitting}
+              className={`w-full py-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold transition
+                hover:from-indigo-600 hover:to-indigo-700 ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              Sign In
+              {submitting ? 'Signing In…' : 'Sign In'}
             </button>
           </form>
         </div>
