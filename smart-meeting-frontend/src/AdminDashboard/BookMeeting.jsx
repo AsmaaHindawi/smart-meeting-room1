@@ -8,6 +8,7 @@ export default function BookMeeting() {
   const [editMeeting, setEditMeeting] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [meetingToDelete, setMeetingToDelete] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const fetchMeetings = async () => {
     try {
@@ -22,6 +23,11 @@ export default function BookMeeting() {
   useEffect(() => {
     fetchMeetings();
   }, []);
+
+  const showSuccess = (msg) => {
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(""), 3000); // hide after 3 sec
+  };
 
   const handleFormSubmit = async (formData) => {
     try {
@@ -44,13 +50,12 @@ export default function BookMeeting() {
         throw new Error(errorData.message || "Failed to save meeting");
       }
 
-      alert(editMeeting ? "Meeting updated successfully!" : "Meeting scheduled successfully!");
+      showSuccess(editMeeting ? "Meeting updated successfully!" : "Meeting scheduled successfully!");
       setModalOpen(false);
       setEditMeeting(null);
       fetchMeetings();
     } catch (err) {
       console.error("Error:", err);
-      alert("Error: " + err.message);
     }
   };
 
@@ -67,13 +72,12 @@ export default function BookMeeting() {
       });
       if (!res.ok) throw new Error("Failed to delete meeting");
 
-      alert("Meeting deleted.");
+      showSuccess("Meeting deleted successfully!");
       setDeleteModalOpen(false);
       setMeetingToDelete(null);
       fetchMeetings();
     } catch (err) {
       console.error("Error deleting meeting:", err);
-      alert("Error: " + err.message);
     }
   };
 
@@ -84,6 +88,13 @@ export default function BookMeeting() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      {/* Success Notification */}
+      {successMessage && (
+        <div className="mb-4 p-3 rounded bg-green-100 border border-green-300 text-green-700 shadow">
+          {successMessage}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-indigo-700">Book a Meeting</h1>
@@ -112,7 +123,7 @@ export default function BookMeeting() {
 
       {/* Delete Confirmation Modal */}
       {deleteModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-sm p-6 rounded-xl shadow-lg relative">
             <button
               onClick={() => setDeleteModalOpen(false)}
@@ -147,8 +158,7 @@ export default function BookMeeting() {
       {/* Meetings Table */}
       <h2 className="text-lg font-semibold mt-6 mb-3 text-gray-700">Scheduled Meetings</h2>
       <div className="bg-white shadow-lg overflow-hidden">
-      <table className="w-full border-collapse border border-gray-300">
-
+        <table className="w-full border-collapse border border-gray-300">
           <thead className="bg-indigo-100 text-gray-700">
             <tr>
               <th className="p-3 border">Title</th>
@@ -164,7 +174,9 @@ export default function BookMeeting() {
             {meetings.map((meeting, index) => (
               <tr
                 key={meeting.id}
-                className={`hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                className={`hover:bg-gray-50 transition ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                }`}
               >
                 <td className="p-3 border font-medium">{meeting.title}</td>
                 <td className="p-3 border">{meeting.date || "-"}</td>
@@ -178,28 +190,28 @@ export default function BookMeeting() {
                     {meeting.attendees?.map((attendee) => (
                       <li key={attendee.id}>
                         {attendee.user
-                          ? attendee.user.username || attendee.user.email || "No name/email"
+                          ? attendee.user.username ||
+                            attendee.user.email ||
+                            "No name/email"
                           : "No user assigned"}
                       </li>
                     ))}
                   </ul>
                 </td>
-              <td className="p-3 border text-center gap-3">
-  <button
-    onClick={() => handleEditClick(meeting)}
-    className="text-blue-700 hover:text-blue-800"
-  >
-    <FaEdit />
-  </button>
-  <button
-    onClick={() => confirmDelete(meeting)}
-   className="text-red-700 m-4 hover:text-red-800"
-
-  >
-    <FaTrash />
-  </button>
-</td>
-
+                <td className="p-3 border text-center gap-3">
+                  <button
+                    onClick={() => handleEditClick(meeting)}
+                    className="text-blue-700 hover:text-blue-800"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => confirmDelete(meeting)}
+                    className="text-red-700 m-4 hover:text-red-800"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
