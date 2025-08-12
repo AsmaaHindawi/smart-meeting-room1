@@ -1,12 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import Select from "react-select";
-import {
-  FaTrash,
-  FaEdit,
-  FaChevronDown,
-  FaChevronUp,
-  FaFilePdf,
-} from "react-icons/fa";
+import { FaTrash, FaEdit, FaChevronDown, FaChevronUp, FaFilePdf } from "react-icons/fa";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -25,7 +19,7 @@ export const MinutesEditor = () => {
   const [allMinutes, setAllMinutes] = useState([]);
   const [expandedRows, setExpandedRows] = useState(new Set());
 
-  // For delete confirmation modal
+  // Delete confirmation modal
   const [deleteConfirmMinutesId, setDeleteConfirmMinutesId] = useState(null);
 
   // Fetch all meetings
@@ -54,16 +48,14 @@ export const MinutesEditor = () => {
     loadAllMinutes();
   }, []);
 
-  // Fetch attendees and minutes when a meeting is selected,
-  // but only if not editing existing minutes (minutesId is null)
+  // Fetch attendees and minutes when a meeting is selected (unless editing existing minutes)
   useEffect(() => {
     if (!selectedMeeting) {
       clearForm();
       return;
     }
-
     if (minutesId) {
-      // Already editing an existing minutes, skip fetching to avoid overwrite
+      // Skip fetching to avoid overwriting the form when editing an existing minutes
       return;
     }
 
@@ -142,7 +134,7 @@ export const MinutesEditor = () => {
 
       if (!res.ok) throw new Error("Save failed");
 
-      const data = await res.json();
+      await res.json();
       setStatus(`Minutes ${minutesId ? "updated" : "saved"} successfully`);
       loadAllMinutes();
       clearForm();
@@ -216,10 +208,9 @@ export const MinutesEditor = () => {
   const truncate = (text, maxLength = 60) =>
     text?.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 
-  // New function: Download PDF for a specific minutes entry
+  // Download PDF for a specific minutes entry
   const downloadMinutesPdfFromEntry = (minutes) => {
     const doc = new jsPDF();
-
     const meetingObj = meetings.find((m) => m.value === minutes.meeting_id);
 
     doc.setFontSize(18);
@@ -247,19 +238,119 @@ export const MinutesEditor = () => {
     doc.text(attendeesText, 14, 118, { maxWidth: 180 });
 
     doc.save(
-      `Minutes_${(meetingObj?.label || `Meeting_${minutes.meeting_id}`).replace(
-        /\s+/g,
-        "_"
-      )}.pdf`
+      `Minutes_${(meetingObj?.label || `Meeting_${minutes.meeting_id}`).replace(/\s+/g, "_")}.pdf`
     );
+  };
+
+  // Build table rows without introducing whitespace text nodes inside <thead>, <tbody>, or <tr>
+  const renderTableHead = () => (
+    <thead className="bg-gray-100 text-gray-700">
+      {/* Keep <tr> and its children contiguous to avoid whitespace text nodes */}
+      <tr><th className="text-left p-3">Meeting</th><th className="text-left p-3 max-w-xs">Agenda</th><th className="text-left p-3 max-w-xs">Decisions</th><th className="text-left p-3 w-56">Actions</th></tr>
+    </thead>
+  );
+
+  const renderEmptyBody = () => (
+    <tbody>
+      {/* Single compact row; no stray whitespace before/after <tr> */}
+      <tr><td colSpan="4" className="text-center py-6 text-gray-500">No minutes available.</td></tr>
+    </tbody>
+  );
+
+  const renderBody = () => {
+    // Use flatMap to return an array of <tr> elements; avoid fragments that may add whitespace
+    const rows = allMinutes.flatMap((m, index) => {
+      const meeting = meetings.find((meet) => meet.value === m.meeting_id);
+      const isExpanded = expandedRows.has(m.id);
+      const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-50";
+
+      const mainRow = (
+        <tr
+          key={`main-${m.id}`}
+          className={`hover:bg-indigo-50 cursor-pointer ${rowBg}`}
+          onClick={() => toggleRow(m.id)}
+        >
+          <td className="p-3 align-top">{meeting?.label || `Meeting #${m.meeting_id}`}</td>
+          <td className="p-3 max-w-xs truncate align-top" title={m.action_items}>
+            {truncate(m.action_items, 80)}
+          </td>
+          <td className="p-3 max-w-xs truncate align-top" title={m.decisions}>
+            {truncate(m.decisions, 80)}
+          </td>
+          <td className="p-3 flex items-center space-x-3 justify-start">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                editFromTable(m);
+              }}
+              title="Edit"
+              className="text-blue-600 hover:text-blue-800"
+              aria-label="Edit minutes"
+            >
+              <FaEdit />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteFromTable(m);
+              }}
+              title="Delete"
+              className="text-red-600 hover:text-red-800"
+              aria-label="Delete minutes"
+            >
+              <FaTrash />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleRow(m.id);
+              }}
+              title={isExpanded ? "Collapse" : "Expand"}
+              className="text-gray-600 hover:text-black"
+              aria-label={isExpanded ? "Collapse details" : "Expand details"}
+            >
+              {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                downloadMinutesPdfFromEntry(m);
+              }}
+              title="Download PDF"
+              className="text-red-700 hover:text-red-900"
+              aria-label="Download minutes PDF"
+            >
+              <FaFilePdf />
+            </button>
+          </td>
+        </tr>
+      );
+
+      const expandedRow = isExpanded ? (
+        <tr key={`exp-${m.id}`} className="bg-indigo-50">
+          <td colSpan="4" className="p-4 text-sm text-gray-700 whitespace-pre-wrap">
+            <strong>Full Agenda:</strong> {m.action_items || "None"}
+            <br />
+            <strong>Decisions:</strong> {m.decisions || "None"}
+            <br />
+            <strong>Attendees:</strong>{" "}
+            {m.attendees?.length
+              ? m.attendees.map((a) => a.user?.username || a.user?.email).join(", ")
+              : "No attendees"}
+          </td>
+        </tr>
+      ) : null;
+
+      return expandedRow ? [mainRow, expandedRow] : [mainRow];
+    });
+
+    return <tbody>{rows}</tbody>;
   };
 
   return (
     <div className="min-h-screen py-10 px-4 bg-gray-50 flex flex-col items-center">
       <div className="w-full max-w-6xl bg-white p-8 rounded-3xl shadow-md mb-10">
-        <h2 className="text-3xl font-bold text-indigo-600 mb-6 border-b pb-2">
-          Minutes of Meeting
-        </h2>
+        <h2 className="text-3xl font-bold text-indigo-600 mb-6 border-b pb-2">Minutes of Meeting</h2>
 
         {/* Meeting Selection */}
         <div className="mb-5">
@@ -268,7 +359,7 @@ export const MinutesEditor = () => {
             options={meetings}
             value={selectedMeeting}
             onChange={(val) => {
-              setMinutesId(null); // Reset minutesId when user picks a new meeting manually
+              setMinutesId(null);
               setSelectedMeeting(val);
             }}
             placeholder="Choose a meeting..."
@@ -341,117 +432,8 @@ export const MinutesEditor = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full table-auto border rounded-xl">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th className="text-left p-3">Meeting</th>
-                <th className="text-left p-3 max-w-xs">Agenda</th>
-                <th className="text-left p-3 max-w-xs">Decisions</th>
-                <th className="text-left p-3 w-56">Actions</th> {/* wider to fit the new button */}
-              </tr>
-            </thead>
-            <tbody>
-              {allMinutes.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="text-center py-6 text-gray-500">
-                    No minutes available.
-                  </td>
-                </tr>
-              ) : (
-                allMinutes.map((m, index) => {
-                  const meeting = meetings.find((meet) => meet.value === m.meeting_id);
-                  const isExpanded = expandedRows.has(m.id);
-                  const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-50";
-
-                  return (
-                    <React.Fragment key={m.id}>
-                      <tr
-                        className={`hover:bg-indigo-50 cursor-pointer ${rowBg}`}
-                        onClick={() => toggleRow(m.id)}
-                      >
-                        <td className="p-3 align-top">{meeting?.label || `Meeting #${m.meeting_id}`}</td>
-                        <td
-                          className="p-3 max-w-xs truncate align-top"
-                          title={m.action_items}
-                        >
-                          {truncate(m.action_items, 80)}
-                        </td>
-                        <td
-                          className="p-3 max-w-xs truncate align-top"
-                          title={m.decisions}
-                        >
-                          {truncate(m.decisions, 80)}
-                        </td>
-                        <td className="p-3 flex items-center space-x-3 justify-start">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              editFromTable(m);
-                            }}
-                            title="Edit"
-                            className="text-blue-600 hover:text-blue-800"
-                            aria-label="Edit minutes"
-                          >
-                            <FaEdit />
-                          </button>
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFromTable(m);
-                            }}
-                            title="Delete"
-                            className="text-red-600 hover:text-red-800"
-                            aria-label="Delete minutes"
-                          >
-                            <FaTrash />
-                          </button>
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleRow(m.id);
-                            }}
-                            title={isExpanded ? "Collapse" : "Expand"}
-                            className="text-gray-600 hover:text-black"
-                            aria-label={isExpanded ? "Collapse details" : "Expand details"}
-                          >
-                            {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                          </button>
-
-                          {/* New Download PDF button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              downloadMinutesPdfFromEntry(m);
-                            }}
-                            title="Download PDF"
-                            className="text-red-700 hover:text-red-900"
-                            aria-label="Download minutes PDF"
-                          >
-                            <FaFilePdf />
-                          </button>
-                        </td>
-                      </tr>
-
-                      {isExpanded && (
-                        <tr className="bg-indigo-50">
-                          <td colSpan="4" className="p-4 text-sm text-gray-700 whitespace-pre-wrap">
-                            <strong>Full Agenda:</strong> {m.action_items || "None"}
-                            <br />
-                            <strong>Decisions:</strong> {m.decisions || "None"}
-                            <br />
-                            <strong>Attendees:</strong>{" "}
-                            {m.attendees?.length
-                              ? m.attendees.map((a) => a.user?.username || a.user?.email).join(", ")
-                              : "No attendees"}
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  );
-                })
-              )}
-            </tbody>
+            {renderTableHead()}
+            {allMinutes.length === 0 ? renderEmptyBody() : renderBody()}
           </table>
         </div>
       </div>

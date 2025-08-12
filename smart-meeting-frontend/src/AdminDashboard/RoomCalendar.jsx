@@ -54,7 +54,6 @@ export default function RoomCalendar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-<<<<<<< HEAD
     let mounted = true;
     setLoading(true);
     Promise.all([
@@ -69,10 +68,6 @@ export default function RoomCalendar() {
       .catch((err) => console.error("Failed to load calendar data:", err))
       .finally(() => setLoading(false));
     return () => { mounted = false; };
-=======
-    axios.get("http://localhost:8000/api/rooms").then(res => setRooms(res.data));
-    axios.get("http://localhost:8000/api/meetings").then(res => setMeetings(res.data));
->>>>>>> parent of c0e33f0c (Merge pull request #7 from AsmaaHindawi/codex/refactor-components-to-use-shared-api-instance)
   }, []);
 
   // Color map by room NAME so “Room A/B/C/…” are consistent

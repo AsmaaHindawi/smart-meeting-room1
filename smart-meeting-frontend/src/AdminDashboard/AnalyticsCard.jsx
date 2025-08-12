@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
@@ -12,10 +11,6 @@ const AnalyticsCard = ({ title, items, highlightTop = true, topN = 5 }) => {
   }, [items, topN]);
 
   const max = useMemo(() => Math.max(...rows.map((r) => r.value), 1), [rows]);
-=======
-import React, { useEffect, useState } from "react";
-import axios from "axios";
->>>>>>> parent of c0e33f0c (Merge pull request #7 from AsmaaHindawi/codex/refactor-components-to-use-shared-api-instance)
 
   return (
     <div className="bg-white p-5 rounded-xl shadow-md w-full">
@@ -95,7 +90,6 @@ export default function RoomUsageMostBooked() {
   const [scope, setScope] = useState("all");
 
   useEffect(() => {
-<<<<<<< HEAD
     let mounted = true;
     setLoading(true);
     Promise.all([
@@ -111,21 +105,6 @@ export default function RoomUsageMostBooked() {
       .finally(() => setLoading(false));
     return () => {
       mounted = false;
-=======
-    const fetchData = async () => {
-      try {
-        const [roomsRes, meetingsRes] = await Promise.all([
-          axios.get("http://localhost:8000/api/rooms"),
-          axios.get("http://localhost:8000/api/meetings"),
-        ]);
-        setRooms(roomsRes.data);
-        setMeetings(meetingsRes.data);
-      } catch (err) {
-        console.error("Error fetching data", err);
-      } finally {
-        setLoading(false);
-      }
->>>>>>> parent of c0e33f0c (Merge pull request #7 from AsmaaHindawi/codex/refactor-components-to-use-shared-api-instance)
     };
   }, []);
 
