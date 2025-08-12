@@ -51,10 +51,6 @@ Route::get('/user', function (Request $request) {
 
 // Logout (revoke token)
 
-
-   
-});
-
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
 Route::apiResource('users',         UserController::class);
 Route::apiResource('attendees',     MeetingAttendeeController::class);
@@ -68,6 +64,8 @@ Route::apiResource('minutes',       MinutesOfMeetingController::class);
 Route::get('/attendees/meeting/{meeting}', [MeetingAttendeeController::class, 'getByMeeting']);
 Route::get('/minutes/meeting/{meetingId}', [MinutesOfMeetingController::class, 'showByMeeting']);
 Route::post('/minutes/meeting/{meetingId}', [MinutesOfMeetingController::class, 'storeByMeeting']);
+   
+});
 
 Route::apiResource('contact', ContactController::class);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy']);
