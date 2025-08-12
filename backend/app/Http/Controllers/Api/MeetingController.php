@@ -65,30 +65,39 @@ public function store(Request $request)
 
 
 
-    public function show($id)
-    {
-        $meeting = Meeting::with(['minutes','room','attendees','bookings'])
-                          ->findOrFail($id);
+    // public function show($id)
+    // {
+    //     $meeting = Meeting::with(['minutes','room','attendees','bookings'])
+    //                       ->findOrFail($id);
 
-        return response()->json($meeting, 200);
-    }
+    //     return response()->json($meeting, 200);
+    // }
+public function show($id)
+{
+    $meeting = Meeting::with(['minutes','room','attendees.user','bookings'])->findOrFail($id);
+    return response()->json($meeting, 200);
+}
+public function update(Request $request, $id)
+{
+    $meeting = Meeting::findOrFail($id);
 
-    public function update(Request $request, $id)
-    {
-        $meeting = Meeting::findOrFail($id);
+    $validated = $request->validate([
+        'room_id'   => 'sometimes|required|exists:rooms,id',
+        'mom_id'    => 'sometimes|nullable|exists:minutes_of_meetings,id',
+        'title'     => 'sometimes|required|string|max:255',
+        'agenda'    => 'nullable|string',
+        'date'      => 'sometimes|required|date',
+        'time'      => 'sometimes|required',
+        'duration'  => 'sometimes|required|integer',
+        'recurring' => 'boolean',
+        'video'     => 'boolean',
+    ]);
 
-        $data = $request->validate([
-            'room_id' => 'sometimes|required|exists:rooms,id',
-            // ← allow clearing/changing mom_id on update
-            'mom_id'  => 'sometimes|nullable|exists:minutes_of_meetings,id',
-            'title'   => 'sometimes|required|string|max:255',
-            'agenda'  => 'nullable|string',
-        ]);
+    $meeting->update($validated);
 
-        $meeting->update($data);
+    return response()->json($meeting, 200);
+}
 
-        return response()->json($meeting, 200);
-    }
 
     public function destroy($id)
     {
