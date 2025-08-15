@@ -18,12 +18,14 @@ function Login() {
     setSubmitting(true);
 
     try {
-      // signIn returns the authenticated user (with .roles)
-      const me = await signIn({ email, password });
-      // Redirect to role-based dashboard
+      const me = await signIn({ email, password }); // now returns the user object
       navigate(getDashboardPath(me.roles));
     } catch (err) {
-      setError(err?.response?.data?.message || 'An unexpected error occurred');
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        'An unexpected error occurred';
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -57,11 +59,7 @@ function Login() {
           </h2>
           <p className="text-sm text-center text-gray-400 mb-6">Welcome !</p>
 
-          {error && (
-            <div className="mb-4 text-red-600 text-center">
-              {error}
-            </div>
-          )}
+          {error && <div className="mb-4 text-red-600 text-center">{error}</div>}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
